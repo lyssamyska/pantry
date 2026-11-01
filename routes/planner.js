@@ -7,12 +7,11 @@ const bookmarksDb = require('../db/user-bookmarks');
 const pantryDb = require('../db/pantry-items');
 const pricesDb = require('../db/prices');
 const { generateMealPlan, buildGroceryList, computeDayPricing, isGroceryListComplete } = require('../services/meal-planner');
-const { reportError } = require('../lib/polsia-log');
-const { rejectMismatchedUserId, requirePaidAccess } = require('../lib/pantry-access');
+const { rejectMismatchedUserId, requireAuth } = require('../lib/require-auth');
 
 router.use((req, res, next) => {
   if (req.method === 'POST' && req.path === '/seed-recipes') return next();
-  return requirePaidAccess(req, res, () => rejectMismatchedUserId(req, res, next));
+  return requireAuth(req, res, () => rejectMismatchedUserId(req, res, next));
 });
 
 function parsePlannerDayIndex(value) {
@@ -191,7 +190,6 @@ router.post('/generate', async (req, res) => {
       csa_items_count: csaItems.length
     });
   } catch (err) {
-    reportError(Object.assign(err, { userId: req.authenticatedUserId }), '/api/planner/generate');
     console.error('[/api/planner/generate]', err);
     const status = err.code === 'UNSATISFIED_REQUIRED_INGREDIENT' ? 422 : 500;
     res.status(status).json({ error: err.message || 'Failed to generate meal plan', code: err.code || null });
@@ -222,7 +220,6 @@ router.post('/plan/:id/save', async (req, res) => {
     await plansDb.saveMealPlanAndGroceryList(planId, body.days, body.grocery_list);
     return res.json({ saved: true, plan_id: planId });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${planId}/save`);
     console.error('[/api/planner/plan/:id/save]', err);
     return res.status(500).json({ error: 'Failed to save meal plan' });
   }
@@ -272,7 +269,6 @@ router.get('/latest', async (req, res) => {
       csa_items_count: csaItems.length
     });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), '/api/planner/latest');
     console.error('[/api/planner/latest]', err);
     res.status(500).json({ error: 'Failed to fetch latest meal plan' });
   }
@@ -286,7 +282,6 @@ router.get('/plans', async (req, res) => {
     const plans = await plansDb.listMealPlanSnapshots(userId);
     res.json({ plans });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), '/api/planner/plans');
     console.error('[/api/planner/plans]', err);
     res.status(500).json({ error: 'Failed to fetch meal plans' });
   }
@@ -307,7 +302,6 @@ router.get('/plan/:id', async (req, res) => {
     const groceries = await plansDb.getGroceryList(planId);
     res.json({ plan, groceries });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${planId}`);
     console.error('[/api/planner/plan/:id]', err);
     res.status(500).json({ error: 'Failed to fetch plan' });
   }
@@ -357,7 +351,6 @@ router.get('/plan/:id/swap-options', async (req, res) => {
 
     return res.json({ dayIndex, options });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${planId}/swap-options`);
     console.error('[/api/planner/plan/:id/swap-options]', err);
     return res.status(500).json({ error: 'Failed to load recipe options' });
   }
@@ -440,7 +433,6 @@ router.post('/plan/:id/swap-recipe', async (req, res) => {
       created_at: plan.created_at
     });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${planId}/swap-recipe`);
     console.error('[/api/planner/plan/:id/swap-recipe]', err);
     return res.status(500).json({ error: 'Failed to swap recipe' });
   }
@@ -471,7 +463,6 @@ router.post('/plan/:id/custom-item', async (req, res) => {
     if (!saved) return res.status(404).json({ error: 'Plan not found' });
     return res.json(saved);
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${planId}/custom-item`);
     console.error('[/api/planner/plan/:id/custom-item]', err);
     return res.status(500).json({ error: 'Failed to add custom grocery item' });
   }
@@ -510,7 +501,6 @@ router.patch('/plan/:id/grocery-item', async (req, res) => {
 
     return res.json({ item });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${planId}/grocery-item`);
     console.error('[/api/planner/plan/:id/grocery-item]', err);
     return res.status(500).json({ error: 'Failed to update grocery item' });
   }
@@ -550,7 +540,6 @@ router.patch('/plan/:id/grocery-item/note', async (req, res) => {
 
     return res.json({ item });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${planId}/grocery-item/note`);
     console.error('[/api/planner/plan/:id/grocery-item/note]', err);
     return res.status(500).json({ error: 'Failed to update grocery item note' });
   }
@@ -577,7 +566,6 @@ router.post('/plan/:id/reset-grocery-progress', async (req, res) => {
       grocery_list: Object.fromEntries(groceryRows.map(row => [row.category, row.items || []]))
     });
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${planId}/reset-grocery-progress`);
     console.error('[/api/planner/plan/:id/reset-grocery-progress]', err);
     return res.status(500).json({ error: 'Failed to reset grocery progress' });
   }
@@ -646,7 +634,6 @@ router.get('/plan/:id/export', async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="pantry-grocery-list-${planId}.txt"`);
     return res.send(text);
   } catch (err) {
-    reportError(Object.assign(err, { userId }), `/api/planner/plan/${req.params.id}/export`);
     console.error('[/api/planner/plan/:id/export]', err);
     res.status(500).json({ error: 'Failed to export grocery list' });
   }
@@ -666,7 +653,6 @@ router.post('/seed-recipes', async (req, res) => {
 
     res.json({ message: 'Seeded', count: recipes.length });
   } catch (err) {
-    reportError(err, '/api/planner/seed-recipes');
     console.error('[/api/planner/seed-recipes]', err);
     res.status(500).json({ error: 'Failed to seed recipes' });
   }

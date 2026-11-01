@@ -3,7 +3,6 @@ const plansDb = require('../db/meal-plans');
 const pantryDb = require('../db/pantry-items');
 const { getUserById } = require('../db/users');
 const { getUserIdFromCookie } = require('../lib/user-session');
-const { getConfiguredPaidAccess } = require('../lib/pantry-access');
 const {
   AUSTIN_RETAILER_DISPLAY_NAMES,
   isSupportedAustinStoreName,
@@ -11,25 +10,8 @@ const {
 
 const router = express.Router();
 
-async function redirectIfUnpaid(req, res, userId) {
-  if (!userId) return false;
-  try {
-    const access = await getConfiguredPaidAccess(userId);
-    if (!access.configured || !access.hasAccess) {
-      res.redirect('/profile');
-      return true;
-    }
-  } catch (err) {
-    console.error('[product-pages] entitlement lookup failed:', err.message || err);
-    res.redirect('/profile');
-    return true;
-  }
-  return false;
-}
-
 router.get('/planner', async (req, res) => {
   const userId = getUserIdFromCookie(req);
-  if (await redirectIfUnpaid(req, res, userId)) return;
 
   if (userId) {
     try {
@@ -58,7 +40,6 @@ router.get('/planner', async (req, res) => {
 
 router.get('/planner/export', async (req, res) => {
   const userId = getUserIdFromCookie(req);
-  if (await redirectIfUnpaid(req, res, userId)) return;
 
   let planId = null;
   let byCategory = {};
@@ -105,7 +86,6 @@ router.get('/planner/export', async (req, res) => {
 
 router.get('/pantry', async (req, res) => {
   const userId = getUserIdFromCookie(req);
-  if (await redirectIfUnpaid(req, res, userId)) return;
 
   let items = [];
   if (userId) {

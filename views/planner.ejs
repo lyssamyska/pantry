@@ -2454,20 +2454,7 @@
     function plannerReportError(err, source) {
       const message = String((err && (err.message || err)) || 'Unknown error');
       const stack = (err && err.stack) || '';
-      try {
-        fetch('/api/log/client', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message,
-            stack,
-            source: source || 'unknown',
-            url: location.href,
-            userId: window._currentUserId || null,
-            timestamp: new Date().toISOString()
-          })
-        }).catch(() => {});
-      } catch (_e) {}
+      console.error('[planner]', source || 'unknown', err);
       return message;
     }
 

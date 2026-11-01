@@ -1,8 +1,7 @@
 const express = require('express');
 const { getUserById, saveOnboardingPreferences } = require('../db/users');
 const { getUserIdFromCookie } = require('../lib/user-session');
-const { getPaymentPresentation } = require('../lib/pantry-payments');
-const { getConfiguredPaidAccess } = require('../lib/pantry-access');
+const { clearSessionCookie } = require('../lib/session');
 
 const router = express.Router();
 const DIETARY_CHOICES = new Set(['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'paleo', 'keto']);
@@ -15,19 +14,13 @@ router.get('/', async (req, res, next) => {
   try {
     const user = await getUserById(userId);
     if (!user) {
-      res.clearCookie('user_id', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-      });
+      clearSessionCookie(res);
       return res.redirect('/?account=1');
     }
 
-    const paidAccess = await getConfiguredPaidAccess(userId);
     res.render('profile', {
       title: 'Your Profile — Pantry',
       user,
-      paymentPresentation: { ...getPaymentPresentation(user), hasPaidAccess: paidAccess.hasAccess },
       dietPreferences: Array.isArray(user.diet_preferences) ? user.diet_preferences : [],
       mealCountDefaults: user.meal_count_defaults && typeof user.meal_count_defaults === 'object'
         ? user.meal_count_defaults

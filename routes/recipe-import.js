@@ -8,9 +8,9 @@ const recipesDb = require('../db/recipes');
 const pantryDb = require('../db/pantry-items');
 const pricesDb = require('../db/prices');
 const { buildGroceryList } = require('../services/meal-planner');
-const { rejectMismatchedUserId, requirePaidAccess } = require('../lib/pantry-access');
+const { rejectMismatchedUserId, requireAuth } = require('../lib/require-auth');
 
-router.use(requirePaidAccess, rejectMismatchedUserId);
+router.use(requireAuth, rejectMismatchedUserId);
 
 async function rebuildPlanGroceries(plan, days) {
   const pantryItems = plan.user_id ? await pantryDb.getPantryItems(plan.user_id) : [];

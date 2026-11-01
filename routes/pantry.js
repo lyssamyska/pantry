@@ -2,9 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const pantryDb = require('../db/pantry-items');
-const { rejectMismatchedUserId, requirePaidAccess, userIdMatchesAuthenticatedAccount } = require('../lib/pantry-access');
+const { rejectMismatchedUserId, requireAuth, userIdMatchesAuthenticatedAccount } = require('../lib/require-auth');
 
-router.use(requirePaidAccess, rejectMismatchedUserId);
+router.use(requireAuth, rejectMismatchedUserId);
 router.param('userId', (req, res, next, userId) => {
   if (!userIdMatchesAuthenticatedAccount(req, userId)) {
     return res.status(403).json({ error: 'userId does not match the authenticated account' });
