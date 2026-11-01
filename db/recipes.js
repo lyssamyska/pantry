@@ -128,12 +128,12 @@ async function getDiscoveryRecipes(userId, limit = 12) {
   const curatedExcluded = [...new Set([...alreadyTried, ...bookmarkedIds, ...importedIds])];
   const curatedQuery = curatedExcluded.length > 0
     ? `${DISCOVERY_SELECT}, 'curated' AS origin
-       FROM recipes
-       WHERE id <> ALL($1::int[])
+       FROM recipes r
+       WHERE r.id <> ALL($1::int[])
        ORDER BY RANDOM()
        LIMIT $2`
     : `${DISCOVERY_SELECT}, 'curated' AS origin
-       FROM recipes
+       FROM recipes r
        ORDER BY RANDOM()
        LIMIT $1`;
   const curatedParams = curatedExcluded.length > 0 ? [curatedExcluded, limit] : [limit];
