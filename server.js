@@ -15,6 +15,7 @@ const pantryRouter = require('./routes/pantry');
 const { getUserIdFromCookie } = require('./lib/user-session');
 const { getSessionSecret } = require('./lib/session');
 const { migrate } = require('./migrate');
+const { PRICE_ESTIMATE_NOTICE } = require('./lib/austin-retailers');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -34,6 +35,7 @@ try {
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.priceEstimateNotice = PRICE_ESTIMATE_NOTICE;
 
 app.get('/health', (_req, res) => res.json({ status: 'healthy' }));
 

@@ -1120,6 +1120,7 @@
       white-space: nowrap;
     }
     .grocery-budget-status--under { color: var(--green); }
+    .price-estimate-note { margin: 8px 0 12px; padding: 8px 12px; border-left: 3px solid var(--sienna); background: #FDF3E8; color: #6B3A12; font-size: 0.8rem; }
     .grocery-budget-status--over { color: var(--sienna); }
 
     .copy-btn.copied,
@@ -2352,6 +2353,7 @@
             <button type="submit" class="print-btn" id="addCustomGroceryItemBtn">Add</button>
           </form>
           <p class="grocery-search-no-match" id="grocerySearchNoMatch" role="status" aria-live="polite" hidden></p>
+          <p class="price-estimate-note" id="priceEstimateNote"><%= priceEstimateNotice %></p>
           <div id="groceryList"></div>
           <div id="groceryCostSummary" class="grocery-cost-summary" style="display:none;"></div>
         </div>
@@ -3079,7 +3081,7 @@
           </div>
           <div class="day-info">
             <h4>${d.meal}</h4>
-            ${d.pricing && d.pricing.has_pricing ? `<div class="day-pricing">${d.pricing.best_store ? `Best at ${d.pricing.best_store} · ` : ''}${d.pricing.price_is_estimate ? '~' : ''}$${d.pricing.total_cost.toFixed(2)}${d.pricing.unpriced_count ? ` · ${d.pricing.unpriced_count} unpriced` : ''}</div>` : ''}
+            ${d.pricing && d.pricing.has_pricing ? `<div class="day-pricing">${d.pricing.best_store ? `Best at ${d.pricing.best_store} · ` : ''}${d.pricing.price_is_estimate ? 'Est. ~' : ''}$${d.pricing.total_cost.toFixed(2)}${d.pricing.unpriced_count ? ` · ${d.pricing.unpriced_count} unpriced` : ''}</div>` : ''}
             <div class="day-meta">
               ${d.protein_type ? `<span class="day-tag tag-protein">${d.protein_type}</span>` : ''}
               <span class="day-tag tag-prep">${d.prep_time} min</span>

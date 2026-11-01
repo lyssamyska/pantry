@@ -3,7 +3,8 @@
     straight out of the DB without re-running the JS bucketing logic.
     Expects: { byCategory, byStore: { stores, other, pantry, csa } } %>
 <%
-  const fmtPrice = (n) => `$${Number(n || 0).toFixed(2)}`;
+  // Every Pantry price is a seeded estimate, so every price is marked "Est."
+  const fmtPrice = (n) => `Est. ~$${Number(n || 0).toFixed(2)}`;
   const getGroceryLineCost = (item) => {
     const lineTotal = item && item.line_total;
     if (lineTotal !== null && lineTotal !== undefined && lineTotal !== '' && Number.isFinite(Number(lineTotal))) {
@@ -77,7 +78,7 @@
       <%
         const hasPrice = Boolean(item.best_price) && Number.isFinite(Number(item.best_price));
         const priceText = hasPrice ? fmtPrice(getGroceryLineCost(item)) : '—';
-        const priceClass = hasPrice ? 'grocery-price-inline' : 'grocery-price-inline grocery-price-price-inline--none';
+        const priceClass = hasPrice ? 'grocery-price-inline' : 'grocery-price-inline grocery-price-inline--none';
       %>
       <div class="grocery-item">
         <div class="grocery-dot"></div>
