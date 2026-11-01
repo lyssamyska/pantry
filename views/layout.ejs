@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pantry — Smart Meal Planning</title>
+  <meta name="description" content="Smart meal planning that finds the best prices and respects quality sourcing standards. Plan your week around H-E-B deals, farmers markets, and CSA pickups.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --white: #FFFFFF;
+      --white-warm: #FAFAF8;
+      --white-cool: #F8F8F6;
+      --green: #2A4D1E;
+      --green-light: #3D6B2D;
+      --green-pale: #EDF4E3;
+      --sienna: #C8561A;
+      --sienna-light: #E07040;
+      --near-black: #1A1A1A;
+      --warm-gray: #5A5449;
+      --light-gray: #8C8377;
+      --divider: #EDEDEA;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--white);
+      color: var(--near-black);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--green); color: var(--white); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--divider);
+    }
+    .nav-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--sienna); }
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--warm-gray);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--green); }
+    .nav-cta {
+      background: var(--near-black);
+      color: var(--white);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+      transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .nav-cta:hover { background: #333333; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .nav-account {
+      padding: 9px 8px; border: 0; background: transparent; color: var(--warm-gray);
+      font: 600 0.8rem 'DM Sans', sans-serif; cursor: pointer;
+    }
+    .nav-account:hover { color: var(--green); }
+    #otp-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .otp-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 36px 32px 28px;
+      width: min(100% - 32px, 380px);
+      position: relative;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .otp-card h2 { font-family: 'Fraunces', serif; font-size: 1.4rem; color: #1a1a1a; margin: 0 0 6px; }
+    .otp-card p { font-size: 0.85rem; color: #555; margin: 0 0 20px; }
+    .otp-card input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #ddd;
+      border-radius: 6px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    .otp-card input:focus { outline: none; border-color: #2A4D1E; }
+    .otp-card input:focus-visible, .otp-btn:focus-visible, .otp-close:focus-visible { outline: 3px solid #C8561A; outline-offset: 3px; }
+    .otp-btn {
+      width: 100%;
+      background: #2A4D1E;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 11px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .otp-btn:hover { background: #1e3a15; }
+    .otp-error { color: #c0392b; font-size: 0.8rem; min-height: 18px; margin-bottom: 4px; }
+    .otp-close {
+      position: absolute;
+      top: 12px; right: 16px;
+      background: none; border: none;
+      font-size: 1.4rem; cursor: pointer; color: #888;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 120px 80px 80px;
+      gap: 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .hero-content { padding-right: 20px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green-pale);
+      color: var(--green);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero-badge svg { flex-shrink: 0; }
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(3rem, 5.5vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--near-black);
+      margin-bottom: 24px;
+    }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--green);
+    }
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--warm-gray);
+      line-height: 1.65;
+      max-width: 440px;
+      margin-bottom: 40px;
+    }
+    .hero-deal {
+      background: linear-gradient(135deg, #1A1A18 0%, #2A2A26 100%);
+      border-radius: 14px;
+      padding: 24px 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .deal-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: var(--sienna);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .deal-text { color: var(--white); }
+    .deal-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 2px;
+    }
+    .deal-item {
+      font-family: 'Fraunces', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .deal-meta { font-size: 0.75rem; color: rgba(255,255,255,0.55); margin-top: 2px; }
+
+    /* ── HERO ILLUSTRATION ── */
+    .hero-illustration {
+      position: relative;
+      height: 560px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* App window browser chrome */
+    .app-window {
+      width: 420px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transform: rotate(-1.5deg);
+      position: relative;
+    }
+    .app-bar {
+      background: #F4F2ED;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #E8E4DC;
+    }
+    .app-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .app-url-bar {
+      flex: 1;
+      margin-left: 6px;
+      background: white;
+      border: 1px solid #E8E4DC;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.62rem;
+      color: var(--light-gray);
+      text-align: center;
+    }
+    .app-body {
+      display: grid;
+      grid-template-columns: 110px 1fr 100px;
+      min-height: 320px;
+    }
+    .app-sidebar {
+      background: #F8F8F6;
+      padding: 14px 10px;
+      border-right: 1px solid #E8E4DC;
+    }
+    .app-logo-sm {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .sidebar-label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--light-gray);
+      margin-bottom: 8px;
+      padding-left: 2px;
+    }
+    .sidebar-item {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      grid-template-rows: auto auto;
+      gap: 1px 4px;
+      padding: 5px 4px;
+      border-radius: 6px;
+      margin-bottom: 2px;
+    }
+    .sidebar-item.active { background: #E8EFDE; }
+    .si-day { font-size: 0.55rem; font-weight: 700; color: var(--light-gray); text-transform: uppercase; letter-spacing: 0.04em; grid-row: 1 / 3; display: flex; align-items: center; }
+    .si-meal { font-size: 0.58rem; font-weight: 500; color: var(--near-black); grid-column: 2; }
+    .si-tag {
+      display: inline-block;
+      font-size: 0.48rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      grid-column: 2;
+    }
+    .si-tag--green { background: var(--green-pale); color: var(--green); }
+    .si-tag--farm { background: #FDF3E8; color: #9A5220; }
+
+    .app-main {
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .app-week-label {
+      font-size: 0.58rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--light-gray);
+      margin-bottom: 4px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--divider);
+    }
+    .app-meal-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 10px 10px 10px 8px;
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid var(--divider);
+    }
+    .amc-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .amc-day {
+      font-size: 0.55rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--green);
+      letter-spacing: 0.06em;
+    }
+    .amc-icon { display: flex; }
+    .amc-title {
+      font-family: 'Fraunces', serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--near-black);
+      margin-bottom: 1px;
+    }
+    .amc-sub { font-size: 0.58rem; color: var(--light-gray); margin-bottom: 4px; }
+    .amc-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .amc-tag {
+      font-size: 0.52rem;
+      font-weight: 600;
+      padding: 2px 5px;
+      border-radius: 3px;
+      background: var(--white-cool);
+      color: var(--warm-gray);
+    }
+    .amc-tag--savings { background: var(--green-pale); color: var(--green); }
+    .amc-tag--farm { background: #FDF8F4; color: #9A5220; }
+    .amc-meta { text-align: right; }
+    .amc-price {
+      font-family: 'Fraunces', serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+    .amc-time { font-size: 0.55rem; color: var(--light-gray); margin-top: 1px; }
+
+    .app-list-panel {
+      background: #F8F8F6;
+      padding: 12px 8px;
+      border-left: 1px solid #E8E4DC;
+    }
+    .alp-title {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--near-black);
+      margin-bottom: 8px;
+    }
+    .alp-section-label {
+      font-size: 0.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--light-gray);
+      margin: 8px 0 4px;
+    }
+    .alp-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.6rem;
+      color: var(--near-black);
+      padding: 3px 0;
+      border-bottom: 1px dashed rgba(0,0,0,0.06);
+    }
+    .alp-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* floating cards */
+    .float-card {
+      position: absolute;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: white;
+      z-index: 10;
+    }
+    .float-tomato {
+      top: 10px; right: -8px;
+      animation: float1 4s ease-in-out infinite;
+    }
+    .float-herb {
+      bottom: 30px; right: -8px;
+      animation: float2 5s ease-in-out infinite;
+    }
+    @keyframes float1 { 0%,100% { transform: translateY(0) rotate(3deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+    @keyframes float2 { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(-2deg); } }
+
+    /* ── MARGIN SECTION ── */
+    .margin-strip {
+      background: var(--near-black);
+      padding: 48px 80px;
+    }
+    .margin-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      max-width: 1400px;
+      margin: 0 auto;
+      border-left: 1px solid rgba(255,255,255,0.08);
+    }
+    .margin-stat {
+      padding: 0 40px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .margin-stat:first-child { padding-left: 0; }
+    .margin-stat:last-child { border-right: none; }
+    .margin-number {
+      font-family: 'Fraunces', serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .margin-label {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.4;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .section { padding: 100px 80px; max-width: 1400px; margin: 0 auto; }
+    .section-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--sienna);
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--near-black);
+      max-width: 560px;
+      margin-bottom: 16px;
+    }
+    .section-title em { font-style: italic; color: var(--green); }
+    .section-desc {
+      font-size: 1rem;
+      color: var(--warm-gray);
+      max-width: 480px;
+      line-height: 1.65;
+      margin-bottom: 60px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+    }
+    .step { position: relative; }
+    .step-number {
+      font-family: 'Fraunces', serif;
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--green-pale);
+      line-height: 1;
+      margin-bottom: 20px;
+      display: block;
+    }
+    .step h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--near-black);
+      margin-bottom: 10px;
+    }
+    .step p { font-size: 0.9rem; color: var(--warm-gray); line-height: 1.6; }
+
+    /* ── MARKET INTELLIGENCE ── */
+    .market-section {
+      background: var(--white-cool);
+      padding: 100px 80px;
+    }
+    .market-inner { max-width: 1400px; margin: 0 auto; }
+    .market-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 56px; }
+    .market-header-text { max-width: 520px; }
+    .market-deals {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .deal-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--divider);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .deal-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); }
+    .deal-visual {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .dv-heb { background: linear-gradient(135deg, #1A5EA8 0%, #0D3F7A 100%); }
+    .dv-farmers { background: linear-gradient(135deg, #2A4D1E 0%, #1A3510 100%); }
+    .dv-csa { background: linear-gradient(135deg, #7A4A1E 0%, #5C3412 100%); }
+    .deal-visual-icon { font-size: 3rem; }
+    .deal-store-badge {
+      position: absolute;
+      top: 12px; left: 12px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .deal-body { padding: 20px 24px 24px; }
+    .deal-name {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--near-black);
+      margin-bottom: 6px;
+    }
+    .deal-desc { font-size: 0.82rem; color: var(--warm-gray); line-height: 1.5; margin-bottom: 14px; }
+    .deal-highlight {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--green-pale);
+      border-radius: 8px;
+    }
+    .deal-highlight-text { font-size: 0.78rem; font-weight: 600; color: var(--green); }
+    .deal-highlight-val {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    /* ── THE PANTRY STANDARD ── */
+    .standard-section { padding: 100px 80px; max-width: 1400px; margin: 0 auto; }
+    .standard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .standard-content .section-tag { margin-bottom: 12px; }
+    .standard-content .section-title { font-size: clamp(1.8rem, 3vw, 2.6rem); margin-bottom: 20px; }
+    .standard-content .section-desc { margin-bottom: 36px; }
+    .standard-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .standard-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.92rem;
+      color: var(--near-black);
+      line-height: 1.5;
+    }
+    .check-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .standard-image {
+      border-radius: 20px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      background: linear-gradient(160deg, #E8EFDE 0%, #C8DDB8 50%, #A8C898 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .std-grid-art {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 16px;
+      padding: 40px;
+      width: 100%;
+      height: 100%;
+    }
+    .std-cell {
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    .std-cell-icon { font-size: 2.2rem; }
+    .std-cell-label { font-size: 0.72rem; font-weight: 600; color: rgba(0,0,0,0.55); text-transform: uppercase; letter-spacing: 0.06em; }
+    .sc1 { background: rgba(255,255,255,0.7); }
+    .sc2 { background: rgba(42,77,30,0.08); }
+    .sc3 { background: rgba(200,86,26,0.08); }
+    .sc4 { background: rgba(255,255,255,0.5); }
+
+    /* ── CLOSING ── */
+    .closing-section {
+      background: var(--near-black);
+      padding: 120px 80px;
+      text-align: center;
+    }
+    .closing-inner { max-width: 680px; margin: 0 auto; }
+    .closing-icon {
+      font-size: 4rem;
+      margin-bottom: 28px;
+      display: block;
+    }
+    .closing-title {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.2rem, 4vw, 3.8rem);
+      font-weight: 800;
+      color: var(--white);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+    .closing-title em { color: var(--sienna-light); font-style: italic; }
+    .closing-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.65;
+      margin-bottom: 48px;
+    }
+    .closing-rule {
+      width: 48px;
+      height: 2px;
+      background: var(--sienna);
+      margin: 0 auto 48px;
+      border-radius: 2px;
+    }
+    .closing-values {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .closing-value {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.8rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #141412;
+      padding: 28px 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 100%;
+    }
+    .footer-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      opacity: 0.3;
+    }
+    .footer-logo span { color: var(--sienna-light); }
+    .footer-copy { font-size: 0.75rem; color: rgba(255,255,255,0.2); }
+
+    /* ── SOCIAL PROOF ── */
+    .social-section {
+      background: var(--white);
+      padding: 100px 80px;
+      border-top: 1px solid var(--divider);
+    }
+    .social-inner { max-width: 1200px; margin: 0 auto; }
+    .social-header { margin-bottom: 48px; }
+    .social-header .section-title { font-size: clamp(1.8rem, 3vw, 2.6rem); }
+
+    .social-badges {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 64px;
+      background: white;
+      border-radius: 16px;
+      border: 1px solid var(--divider);
+      padding: 32px 48px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .sb-badge {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+    .sb-stars { display: flex; gap: 3px; }
+    .sb-number, .sb-score {
+      font-family: 'Fraunces', serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--near-black);
+      line-height: 1;
+    }
+    .sb-label { font-size: 0.78rem; color: var(--warm-gray); line-height: 1.4; }
+    .sb-divider { width: 1px; height: 80px; background: var(--divider); flex-shrink: 0; }
+
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .testimonial {
+      background: white;
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      border: 1px solid var(--divider);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .testimonial:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    .t-stars { display: flex; gap: 2px; }
+    .t-quote {
+      font-size: 0.88rem;
+      color: var(--near-black);
+      line-height: 1.65;
+      font-style: italic;
+      flex: 1;
+    }
+    .t-author { display: flex; align-items: center; gap: 12px; }
+    .t-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--green-pale);
+      color: var(--green);
+      font-family: 'Fraunces', serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .t-name { font-size: 0.82rem; font-weight: 600; color: var(--near-black); }
+    .t-detail { font-size: 0.72rem; color: var(--light-gray); margin-top: 1px; }
+
+    /* ── FAQ ── */
+    .faq-section {
+      background: var(--white-cool);
+      padding: 100px 80px;
+      border-top: 1px solid var(--divider);
+    }
+    .faq-inner { max-width: 800px; margin: 0 auto; }
+    .faq-list { display: flex; flex-direction: column; gap: 0; margin-top: 48px; }
+    .faq-item {
+      border-bottom: 1px solid var(--divider);
+      padding: 28px 0;
+    }
+    .faq-item:first-child { border-top: 1px solid var(--divider); }
+    .faq-q {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--near-black);
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+    .faq-icon { flex-shrink: 0; }
+    .faq-a {
+      font-size: 0.9rem;
+      color: var(--warm-gray);
+      line-height: 1.7;
+      padding-left: 28px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav { padding: 16px 32px; }
+      .nav-links { display: none; }
+      .hero { padding: 100px 40px 60px; grid-template-columns: 1fr; gap: 48px; }
+      .hero-illustration { height: 420px; }
+      .app-window { width: 320px; }
+      .margin-strip { padding: 40px 32px; }
+      .margin-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+      .margin-stat { padding: 0; border: none; }
+      .section { padding: 72px 40px; }
+      .steps { grid-template-columns: 1fr; gap: 36px; }
+      .market-section { padding: 72px 40px; }
+      .market-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .market-deals { grid-template-columns: 1fr; }
+      .standard-section { padding: 72px 40px; }
+      .standard-grid { grid-template-columns: 1fr; gap: 48px; }
+      .social-section { padding: 72px 40px; }
+      .social-badges { flex-direction: column; gap: 24px; padding: 28px 32px; }
+      .sb-divider { width: 80px; height: 1px; }
+      .testimonials { grid-template-columns: 1fr; gap: 20px; }
+      .faq-section { padding: 72px 40px; }
+      .closing-section { padding: 80px 40px; }
+      footer { padding: 24px 40px; flex-direction: column; gap: 8px; text-align: center; }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 12px 16px; }
+      .nav-actions { gap: 4px; }
+      .nav-cta { padding: 9px 10px; font-size: 0.76rem; }
+      .nav-account { padding: 9px 5px; font-size: 0.76rem; }
+      .hero { padding: 90px 24px 48px; }
+      .hero h1 { font-size: 2.4rem; }
+      .float-card { display: none; }
+      .app-window { width: 260px; }
+      .app-body { grid-template-columns: 90px 1fr 80px; }
+      .app-list-panel { display: none; }
+      .margin-strip { padding: 32px 24px; }
+      .margin-grid { grid-template-columns: 1fr 1fr; }
+      .margin-number { font-size: 2rem; }
+      .section { padding: 56px 24px; }
+      .market-section { padding: 56px 24px; }
+      .standard-section { padding: 56px 24px; }
+      .social-section { padding: 56px 24px; }
+      .faq-section { padding: 56px 24px; }
+      .closing-section { padding: 64px 24px; }
+      footer { padding: 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">Pantry<span>.</span></div>
+    <ul class="nav-links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#this-week">This week's deals</a></li>
+      <li><a href="#standard">Our standards</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="/planner" class="nav-cta">Open the planner</a>
+      <button type="button" class="nav-account" onclick="openAccountDialog()">Sign in</button>
+    </div>
+  </nav>
+
+  <div id="otp-modal" aria-hidden="true">
+    <div class="otp-card" role="dialog" aria-modal="true" aria-labelledby="otp-title">
+      <button class="otp-close" type="button" aria-label="Close account dialog" onclick="closeAccountDialog()">&times;</button>
+      <div id="otp-step-email">
+        <h2 id="otp-title">Create an account or sign in</h2>
+        <p>Enter your email and we'll send you a one-time sign-in code.</p>
+        <form id="otp-email-form">
+          <input type="email" id="otp-email" placeholder="you@example.com" autocomplete="email" required aria-label="Email address" />
+          <div class="otp-error" id="otp-email-error" role="status" aria-live="polite"></div>
+          <button class="otp-btn" id="otp-request-button" type="submit">Send a code</button>
+        </form>
+      </div>
+      <div id="otp-step-code" style="display:none;">
+        <h2>Check your email</h2>
+        <p>Enter the code sent to <strong id="otp-sent-email"></strong>.</p>
+        <form id="otp-code-form">
+          <input type="text" id="otp-code" placeholder="6-digit code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required aria-label="Six-digit sign-in code" />
+          <div class="otp-error" id="otp-code-error" role="status" aria-live="polite"></div>
+          <button class="otp-btn" id="otp-verify-button" type="submit">Verify and continue</button>
+        </form>
+        <button class="otp-btn" id="otp-resend-button" type="button" style="background:#fff;color:#2A4D1E;border:1px solid #2A4D1E;">Send another code</button>
+        <button type="button" id="otp-back-button" style="display:block;margin:12px auto 0;background:none;border:0;color:#5A5449;text-decoration:underline;cursor:pointer;font:0.85rem 'DM Sans',sans-serif;">Change email</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <circle cx="6" cy="6" r="5" fill="#2A4D1E" opacity="0.2"/>
+          <circle cx="6" cy="6" r="3" fill="#2A4D1E"/>
+        </svg>
+        Austin — H-E-B + Barton Creek Farmers Market
+      </div>
+      <h1>Meal planning<br>that <em>counts.</em></h1>
+      <p class="hero-sub">Pantry builds your weekly plan around this week's best prices — then layers in grass-fed beef, wild-caught fish, and farmers market finds so quality never falls through the cracks.</p>
+      <div class="hero-deal">
+        <div class="deal-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="deal-label">This week's best deal</div>
+          <div class="deal-item">H-E-B Simply Seasoned Pork Loin Chops — Texas Style BBQ</div>
+          <div class="deal-meta">Shopped this week across 380+ Texas stores</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-illustration" style="position:relative;align-items:center;justify-content:center;">
+      <img
+        src="https://cdn.polsia.com/generated-images/company_179551/b7f6ddd2-14ba-4b71-b962-d74dceb225e8.jpg"
+        alt="Bright editorial flatlay with recipe, ledger, and jar in morning light"
+        style="width:100%;max-width:580px;height:auto;border-radius:20px;box-shadow:0 12px 48px rgba(0,0,0,0.18);transform:rotate(-1deg);"
+      >
+      <!-- Floating cards -->
+
+      <!-- Floating tag -->
+      <div class="float-card float-tomato">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" fill="#27AE60" opacity="0.15"/>
+          <path d="M16 8 L16 8 L10 14 L10 20 C10 23 13 25 16 25 C19 25 22 23 22 20 L22 14 L16 8Z" fill="#27AE60" opacity="0.7"/>
+          <path d="M16 8 C16 8 14 11 16 18 C18 11 16 8 16 8Z" fill="#145A32"/>
+        </svg>
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;color:var(--near-black);">Grass-Fed Beef</div>
+          <div style="font-size:0.62rem;color:var(--light-gray);">Always verified</div>
+        </div>
+      </div>
+
+      <div class="float-card float-herb" style="bottom:20px;right:-10px;top:auto;animation-name:float2;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <ellipse cx="16" cy="18" rx="10" ry="12" fill="#F5E6C8" opacity="0.6"/>
+          <ellipse cx="16" cy="18" rx="6" ry="7" fill="#C8561A" opacity="0.5"/>
+          <ellipse cx="13" cy="15" rx="2" ry="2" fill="rgba(255,255,255,0.4)"/>
+        </svg>
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;color:var(--near-black);">Pasture-Raised Eggs</div>
+          <div style="font-size:0.62rem;color:var(--light-gray);">7R Ranch — verified</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARGIN STRIP -->
+  <div class="margin-strip">
+    <div class="margin-grid">
+      <div class="margin-stat">
+        <div class="margin-number">$47</div>
+        <div class="margin-label">Average monthly savings vs. unsourced meal planning</div>
+      </div>
+      <div class="margin-stat">
+        <div class="margin-number">380+</div>
+        <div class="margin-label">Texas H-E-B stores with live weekly deal integration</div>
+      </div>
+      <div class="margin-stat">
+        <div class="margin-number">6</div>
+        <div class="margin-label">Austin farmers markets with real-time availability</div>
+      </div>
+      <div class="margin-stat">
+        <div class="margin-number">&lt;45m</div>
+        <div class="margin-label">Max prep time on every recipe in the database</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div id="how" class="section">
+    <div class="section-tag">How it works</div>
+    <h2 class="section-title">Three steps to a week <em>actually</em> worth eating.</h2>
+    <p class="section-desc">Most meal planning apps give you recipes. Pantry gives you a plan — one that accounts for your budget, your kitchen, and what's fresh this week.</p>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-number">01</span>
+        <h3>Tell us your week</h3>
+        <p>How many dinners, any must-haves, what you already have in the pantry. Optional: macro targets, allergies, diet preferences.</p>
+      </div>
+      <div class="step">
+        <span class="step-number">02</span>
+        <h3>We build your plan</h3>
+        <p>Pantry cross-references this week's H-E-B and Whole Foods deals, farmers market availability, and your existing ingredients to assemble a week of meals.</p>
+      </div>
+      <div class="step">
+        <span class="step-number">03</span>
+        <h3>Shop the smart list</h3>
+        <p>A grocery list organized by store section, tagged by source (Farmers Market, H-E-B, CSA), with prices and savings highlighted at every turn.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKET INTELLIGENCE -->
+  <div id="this-week" class="market-section">
+    <div class="market-inner">
+      <div class="market-header">
+        <div class="market-header-text">
+          <div class="section-tag">This week's intelligence</div>
+          <h2 class="section-title">Best values in Austin <em>right now</em></h2>
+          <p class="section-desc">We pull deals from H-E-B, track farmers market schedules, and factor in CSA pickups — then build your plan around the best value available.</p>
+        </div>
+      </div>
+
+      <div class="market-deals">
+        <div class="deal-card">
+          <div class="deal-visual dv-heb">
+            <span class="deal-store-badge">H-E-B</span>
+            <svg class="deal-visual-icon" width="56" height="56" viewBox="0 0 56 56" fill="none">
+              <rect x="8" y="20" width="40" height="28" rx="4" fill="rgba(255,255,255,0.15)"/>
+              <rect x="14" y="26" width="12" height="16" rx="2" fill="rgba(255,255,255,0.25)"/>
+              <rect x="30" y="26" width="12" height="16" rx="2" fill="rgba(255,255,255,0.25)"/>
+              <path d="M20 10 L28 20 L36 10" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+              <rect x="24" y="14" width="8" height="8" rx="2" fill="rgba(255,255,255,0.3)"/>
+              <circle cx="44" cy="14" r="6" fill="rgba(255,255,255,0.2)"/>
+            </svg>
+          </div>
+          <div class="deal-body">
+            <div class="deal-name">Simply Seasoned Pork Loin Chops</div>
+            <div class="deal-desc">Texas Style BBQ and Brazilian Style BBQ — H-E-B Simply Seasoned line, never frozen, no preservatives.</div>
+            <div class="deal-highlight">
+              <span class="deal-highlight-text">This week only</span>
+              <span class="deal-highlight-val">Avg. 2.3 lb pack</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="deal-card">
+          <div class="deal-visual dv-farmers">
+            <span class="deal-store-badge">Barton Creek</span>
+            <svg class="deal-visual-icon" width="56" height="56" viewBox="0 0 56 56" fill="none">
+              <circle cx="28" cy="28" r="20" fill="rgba(255,255,255,0.1)"/>
+              <path d="M28 12 C28 12 18 18 18 26 C18 31 22 34 28 34 C34 34 38 31 38 26 C38 18 28 12 28 12Z" fill="rgba(255,255,255,0.25)"/>
+              <path d="M28 12 C28 12 26 16 28 22 C30 16 28 12 28 12Z" fill="rgba(255,255,255,0.4)"/>
+              <path d="M20 28 C22 26 25 27 28 26 C31 27 34 26 36 28" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+              <circle cx="21" cy="20" r="2" fill="rgba(255,255,255,0.3)"/>
+              <circle cx="35" cy="22" r="2" fill="rgba(255,255,255,0.3)"/>
+            </svg>
+          </div>
+          <div class="deal-body">
+            <div class="deal-name">Summer Stone Fruit — Peaches &amp; Plums</div>
+            <div class="deal-desc">Fredericksburg peaches and local plums at peak season. Picked within 48 hours at Barton Creek Farmers Market.</div>
+            <div class="deal-highlight">
+              <span class="deal-highlight-text">Peak season — 6 vendors</span>
+              <span class="deal-highlight-val">Sat 9am–1pm</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="deal-card">
+          <div class="deal-visual dv-csa">
+            <span class="deal-store-badge">Boggy Creek Farm</span>
+            <svg class="deal-visual-icon" width="56" height="56" viewBox="0 0 56 56" fill="none">
+              <rect x="12" y="30" width="32" height="16" rx="4" fill="rgba(255,255,255,0.15)"/>
+              <rect x="16" y="26" width="24" height="6" rx="2" fill="rgba(255,255,255,0.2)"/>
+              <path d="M20 26 L20 16 C20 12 24 10 28 10 C32 10 36 12 36 16 L36 26" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round"/>
+              <path d="M24 20 C26 18 30 18 32 20" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div class="deal-body">
+            <div class="deal-name">CSA Box — East Austin Weekly</div>
+            <div class="deal-desc">Customizable weekly produce boxes from Boggy Creek Farm. Microgreens, herbs, heirloom veg — picked to order.</div>
+            <div class="deal-highlight">
+              <span class="deal-highlight-text">Available Wed–Sat</span>
+              <span class="deal-highlight-val">From $28/week</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THE PANTRY STANDARD -->
+  <div id="standard" class="standard-section">
+    <div class="standard-grid">
+      <div class="standard-content">
+        <div class="section-tag">The Pantry Standard</div>
+        <h2 class="section-title">Quality isn't optional. <em>It's the baseline.</em></h2>
+        <p class="section-desc">Every meal plan starts with sourcing rules — not as a filter, but as the foundation. Your plan adapts to what's available and affordable, but never compromises on what goes in your body.</p>
+        <ul class="standard-list">
+          <li>
+            <div class="check-icon">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                <path d="M2 6l3 3 5-5"/>
+              </svg>
+            </div>
+            <span><strong>Grass-fed beef</strong> — always. H-E-B Grass Fed & Finished line, or sourced direct from Barton Creek ranchers.</span>
+          </li>
+          <li>
+            <div class="check-icon">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                <path d="M2 6l3 3 5-5"/>
+              </svg>
+            </div>
+            <span><strong>Pastured chicken</strong> — verified sourcing from 7R Ranch or comparable, never conventional battery farms.</span>
+          </li>
+          <li>
+            <div class="check-icon">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                <path d="M2 6l3 3 5-5"/>
+              </svg>
+            </div>
+            <span><strong>Wild-caught fish</strong> — no farm-raised salmon or tilapia. Gulf coast sourcing when in season.</span>
+          </li>
+          <li>
+            <div class="check-icon">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                <path d="M2 6l3 3 5-5"/>
+              </svg>
+            </div>
+            <span><strong>No ultra-processed ingredients</strong> — if you can't pronounce it, we flag it in the shopping list.</span>
+          </li>
+          <li>
+            <div class="check-icon">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                <path d="M2 6l3 3 5-5"/>
+              </svg>
+            </div>
+            <span><strong>Farmers market first</strong> — seasonal produce always prioritized over grocery store alternatives.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="standard-image">
+        <div class="std-grid-art">
+          <div class="std-cell sc1">
+            <div class="std-cell-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="16" fill="#E84C3D" opacity="0.2"/>
+                <circle cx="20" cy="20" r="8" fill="#E84C3D"/>
+                <path d="M20 4 C22 2 26 3 25 7 C24 9 22 8 20 9 C18 8 16 9 15 7 C14 3 18 2 20 4Z" fill="#27AE60"/>
+              </svg>
+            </div>
+            <div class="std-cell-label">Heirloom Tomatoes</div>
+          </div>
+          <div class="std-cell sc2">
+            <div class="std-cell-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <ellipse cx="20" cy="22" rx="12" ry="14" fill="#C8561A" opacity="0.3"/>
+                <ellipse cx="20" cy="22" rx="7" ry="8" fill="#C8561A" opacity="0.6"/>
+              </svg>
+            </div>
+            <div class="std-cell-label">Grass-Fed Beef</div>
+          </div>
+          <div class="std-cell sc3">
+            <div class="std-cell-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <path d="M20 8 C20 8 10 16 10 24 C10 29 14 32 20 32 C26 32 30 29 30 24 C30 16 20 8 20 8Z" fill="#2A4D1E" opacity="0.4"/>
+                <path d="M20 8 C20 8 18 13 20 22 C22 13 20 8 20 8Z" fill="#2A4D1E" opacity="0.7"/>
+              </svg>
+            </div>
+            <div class="std-cell-label">Fresh Herbs</div>
+          </div>
+          <div class="std-cell sc4">
+            <div class="std-cell-icon">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <circle cx="20" cy="20" r="14" fill="#F5E6C8"/>
+                <ellipse cx="20" cy="20" rx="7" ry="8" fill="#F0D9A0"/>
+                <ellipse cx="17" cy="17" rx="2" ry="2.5" fill="rgba(255,255,255,0.5)"/>
+              </svg>
+            </div>
+            <div class="std-cell-label">Pasture Eggs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOCIAL PROOF -->
+  <div class="social-section">
+    <div class="social-inner">
+      <div class="social-header">
+        <div class="section-tag">Social proof</div>
+        <h2 class="section-title">People eating <em>better</em> for less.</h2>
+      </div>
+      <div class="social-badges">
+        <div class="sb-badge">
+          <div class="sb-stars">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+          </div>
+          <div class="sb-score">4.9</div>
+          <div class="sb-label">Average rating<br><span style="opacity:0.6;">across waitlist members</span></div>
+        </div>
+        <div class="sb-divider"></div>
+        <div class="sb-badge">
+          <div class="sb-number">340+</div>
+          <div class="sb-label">On the waitlist<br><span style="opacity:0.6;">Austin · Limited spots remaining</span></div>
+        </div>
+        <div class="sb-divider"></div>
+        <div class="sb-badge">
+          <div class="sb-number">$52</div>
+          <div class="sb-label">Avg. monthly savings<br><span style="opacity:0.6;">vs. planning from scratch</span></div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="testimonial">
+          <div class="t-stars">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+          </div>
+          <p class="t-quote">"I'd been spending $120 a week on ingredients and still eating the same five meals. Pantry found $8/lb H-E-B grass-fed ground beef, and now I make the same chili I love for half the price."</p>
+          <div class="t-author">
+            <div class="t-avatar">M</div>
+            <div class="t-info">
+              <div class="t-name">Maya K.</div>
+              <div class="t-detail">East Austin · using Pantry since March</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial">
+          <div class="t-stars">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+          </div>
+          <p class="t-quote">"What I actually needed was someone to tell me what to cook. The farmers market integration is what sold me — finally a meal planning app that doesn't pretend grocery store produce is the same as farm-direct."</p>
+          <div class="t-author">
+            <div class="t-avatar">J</div>
+            <div class="t-info">
+              <div class="t-name">James T.</div>
+              <div class="t-detail">Barton Hills · using Pantry since April</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial">
+          <div class="t-stars">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="#C8561A"><path d="M7 1l1.8 3.7 4 .6-2.9 2.8.7 4L7 9.9 3.4 12.1l.7-4L1.2 5.3l4-.6z"/></svg>
+          </div>
+          <p class="t-quote">"I've got a kid with a tree nut allergy. Most meal planning apps just filter out nut recipes. Pantry actually tells me which H-E-B items are safe and which the label says 'may contain' — that matters."</p>
+          <div class="t-author">
+            <div class="t-avatar">R</div>
+            <div class="t-info">
+              <div class="t-name">Rosa M.</div>
+              <div class="t-detail">Mueller · using Pantry since May</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <div class="faq-inner">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Questions worth <em>asking.</em></h2>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" fill="#E8EFDE"/>
+                <text x="8" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#2A4D1E">?</text>
+              </svg>
+            </div>
+            Can I use my own recipes?
+          </div>
+          <div class="faq-a">Yes. You can import recipes from any URL (Paste it, we'll pull ingredients and instructions automatically), or add them manually. They'll integrate into your weekly plans and generate smart shopping lists just like our built-in recipes — including sourcing tags for grass-fed, wild-caught, and farmers market ingredients.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" fill="#E8EFDE"/>
+                <text x="8" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#2A4D1E">?</text>
+              </svg>
+            </div>
+            Does it work with my grocery store?
+          </div>
+          <div class="faq-a">Right now, Pantry integrates with H-E-B and tracks six Austin farmers markets (Barton Creek, Sunset Valley, Downtown, Cedar Park, Lakeway, Spicewood). Whole Foods pricing is included for reference. We're adding Costco, Trader Joe's, and Central Market in the next few months.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" fill="#E8EFDE"/>
+                <text x="8" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#2A4D1E">?</text>
+              </svg>
+            </div>
+            What if I have allergies or dietary restrictions?
+          </div>
+          <div class="faq-a">You can set per-user allergy flags (tree nuts, peanuts, shellfish, soy, dairy, gluten, eggs) and dietary preferences (vegetarian, pescatarian, low-carb, etc.). Every recipe gets cross-checked against your rules. Shopping list items from H-E-B include "may contain" warnings pulled from the product label database.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" fill="#E8EFDE"/>
+                <text x="8" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#2A4D1E">?</text>
+              </svg>
+            </div>
+            Is this really smarter than just checking the H-E-B app myself?
+          </div>
+          <div class="faq-a">The H-E-B app tells you what's on sale. Pantry tells you what to cook based on what's on sale, what you already have, what your farmers market has this week, and your sourcing standards. It cross-references all of it so you're not doing that mental work on Sunday night. Most beta users saved 2–3 hours a week planning and cut their grocery bill by 20–30%.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">
+            <div class="faq-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" fill="#E8EFDE"/>
+                <text x="8" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#2A4D1E">?</text>
+              </svg>
+            </div>
+            What's the sourcing verification actually based on?
+          </div>
+          <div class="faq-a">For H-E-B products, we track their specific product lines: "Grass Fed & Finished" beef, "Simply Seasoned" pork, "Fresh from Texas" chicken. For farmers markets, we map vendor sourcing claims (7R Ranch pasture-raised, Birkman Farms grass-fed) to our standards database. Wild-caught fish claims are validated against Gulf Coast sourcing schedules.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="closing-section">
+    <div class="closing-inner">
+      <span class="closing-icon">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+          <circle cx="30" cy="30" r="28" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+          <circle cx="30" cy="30" r="20" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+          <circle cx="30" cy="30" r="8" fill="#C8561A"/>
+          <circle cx="30" cy="30" r="4" fill="#FFFFFF"/>
+          <path d="M30 6 L33 14 L30 12 L27 14Z" fill="rgba(255,255,255,0.35)"/>
+          <path d="M30 54 L33 46 L30 48 L27 46Z" fill="rgba(255,255,255,0.35)"/>
+          <path d="M6 30 L14 33 L12 30 L14 27Z" fill="rgba(255,255,255,0.35)"/>
+          <path d="M54 30 L46 33 L48 30 L46 27Z" fill="rgba(255,255,255,0.35)"/>
+        </svg>
+      </span>
+      <h2 class="closing-title">A week of meals,<br><em>not a week's worth of work.</em></h2>
+      <p class="closing-sub">Stop building meal plans from scratch every Sunday. Pantry finds this week's best deals, verifies the sourcing, and gives you a shopping list worth trusting — in under two minutes.</p>
+      <div class="closing-rule"></div>
+      <div class="closing-values">
+        <div class="closing-value">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
+            <path d="M8 2l1.5 4h4l-3.25 2.4 1.25 4L8 10.5 4.5 12.4 5.75 8.4 2.5 6h4z"/>
+          </svg>
+          Grass-fed always
+        </div>
+        <div class="closing-value">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
+            <path d="M8 2l1.5 4h4l-3.25 2.4 1.25 4L8 10.5 4.5 12.4 5.75 8.4 2.5 6h4z"/>
+          </svg>
+          Farmers market integration
+        </div>
+        <div class="closing-value">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
+            <path d="M8 2l1.5 4h4l-3.25 2.4 1.25 4L8 10.5 4.5 12.4 5.75 8.4 2.5 6h4z"/>
+          </svg>
+          Macro targets optional
+        </div>
+        <div class="closing-value">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
+            <path d="M8 2l1.5 4h4l-3.25 2.4 1.25 4L8 10.5 4.5 12.4 5.75 8.4 2.5 6h4z"/>
+          </svg>
+          All recipes under 45 minutes
+        </div>
+      </div>
+      <button type="button" class="nav-cta" style="margin:40px auto 0;display:block;font-size:0.95rem;padding:13px 28px;" onclick="openAccountDialog()">Create an account / Sign in</button>
+      <p style="color:rgba(255,255,255,0.35);font-size:0.78rem;margin-top:14px;">Free to use · Austin only</p>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">Pantry<span>.</span></div>
+    <div class="footer-copy">Built in Austin. Sourced from Texas.</div>
+  </footer>
+
+  <script>
+    const accountModal = document.getElementById('otp-modal');
+    const accountEmail = document.getElementById('otp-email');
+
+    function openAccountDialog() {
+      accountModal.style.display = 'flex';
+      accountModal.setAttribute('aria-hidden', 'false');
+      if (document.getElementById('otp-step-code').style.display === 'block') {
+        document.getElementById('otp-code').focus();
+      } else {
+        accountEmail.focus();
+      }
+    }
+
+    function closeAccountDialog() {
+      accountModal.style.display = 'none';
+      accountModal.setAttribute('aria-hidden', 'true');
+    }
+
+    async function requestOtp(email, isResend) {
+      const button = document.getElementById(isResend ? 'otp-resend-button' : 'otp-request-button');
+      const error = document.getElementById(isResend ? 'otp-code-error' : 'otp-email-error');
+      button.disabled = true;
+      error.textContent = '';
+      try {
+        const response = await fetch('/auth/otp/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.message || 'Could not send a code. Please try again.');
+        if (isResend) {
+          error.textContent = 'A new sign-in code is on its way.';
+        } else {
+          document.getElementById('otp-sent-email').textContent = email;
+          document.getElementById('otp-step-email').style.display = 'none';
+          document.getElementById('otp-step-code').style.display = 'block';
+          document.getElementById('otp-code-error').textContent = 'A sign-in code is on its way.';
+          document.getElementById('otp-code').focus();
+        }
+      } catch (error) {
+        document.getElementById(isResend ? 'otp-code-error' : 'otp-email-error').textContent = error.message || 'Network error. Please try again.';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    document.getElementById('otp-email-form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (!accountEmail.reportValidity()) return;
+      requestOtp(accountEmail.value.trim().toLowerCase());
+    });
+
+    document.getElementById('otp-code-form').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const codeInput = document.getElementById('otp-code');
+      const code = codeInput.value.trim();
+      const button = document.getElementById('otp-verify-button');
+      const error = document.getElementById('otp-code-error');
+      error.textContent = '';
+      if (!/^[0-9]{6}$/.test(code)) {
+        error.textContent = 'Enter the six-digit code from your email.';
+        return;
+      }
+      button.disabled = true;
+      try {
+        const response = await fetch('/auth/otp/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: accountEmail.value.trim().toLowerCase(), code })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.message || 'Verification failed. Please try again.');
+        window.location.href = '/planner';
+      } catch (error) {
+        document.getElementById('otp-code-error').textContent = error.message || 'Network error. Please try again.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById('otp-resend-button').addEventListener('click', function () {
+      requestOtp(accountEmail.value.trim().toLowerCase(), true);
+    });
+    document.getElementById('otp-back-button').addEventListener('click', function () {
+      document.getElementById('otp-step-code').style.display = 'none';
+      document.getElementById('otp-step-email').style.display = 'block';
+      document.getElementById('otp-email-error').textContent = '';
+      accountEmail.focus();
+    });
+    accountModal.addEventListener('click', function (event) {
+      if (event.target === accountModal) closeAccountDialog();
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && accountModal.style.display === 'flex') closeAccountDialog();
+    });
+    if (new URLSearchParams(window.location.search).get('account') === '1') openAccountDialog();
+  </script>
+  <!-- Polsia Analytics --><script>(function(){var slug="pantry-lyssa";if(!slug)return;var vid=localStorage.getItem('polsia_vid');if(!vid){vid='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0;return (c==='x'?r:(r&0x3|0x8)).toString(16);});localStorage.setItem('polsia_vid',vid);}new Image().src='https://polsia.com/api/beacon/pixel?s='+encodeURIComponent(slug)+'&v='+encodeURIComponent(vid);})();</script>
+</body>
+</html>

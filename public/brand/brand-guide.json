@@ -1,0 +1,193 @@
+{
+  "_comment": "Pantry Brand Identity Guide — v1.0 (2026-06-25)",
+  "overview": {
+    "name": "Pantry",
+    "tagline": "Meal planning that counts.",
+    "positioning": "Smart meal planning built around Austin market deals. Smart sourcing + smart pricing, not either/or.",
+    "personality": ["Editorial", "Sharp", "Direct", "Warm without being soft", "Unapologetic about quality standards"],
+    "audience": "Austin adults who cook regularly, care about sourcing but also care about their budget"
+  },
+  "logo": {
+    "wordmark": "Pantry",
+    "suffix": "Pantry<span>.</span>",
+    "css": {
+      "fontFamily": "'Fraunces', serif",
+      "fontWeight": 700,
+      "color": "#2A4D1E",
+      "fontSize": "1.4rem",
+      "letterSpacing": "-0.02em"
+    },
+    "accentRule": "The period after 'Pantry' renders in sienna (#C8561A) via span styling — DO NOT remove the span wrapper",
+    "doNotUse": [
+      "Pantry in all caps",
+      "Pantry without the sienna period",
+      "Any variation where the sienna period is missing or replaced",
+      "Pantry with the sienna period rendered in green"
+    ],
+    "lockupVariants": {
+      "nav": { "fontSize": "1.4rem", "weight": 700, "suffix": true },
+      "footer": { "fontSize": "1rem", "weight": 700, "opacity": 0.3, "suffix": true },
+      "appIcon": { "fontSize": "1.6rem", "weight": 800, "suffix": true }
+    }
+  },
+  "colors": {
+    "_comment": "Core palette — these map directly to CSS variables in layout.ejs and planner.ejs",
+    "vars": {
+      "--green": "#2A4D1E",
+      "--green-light": "#3D6B2D",
+      "--green-pale": "#EDF4E3",
+      "--sienna": "#C8561A",
+      "--sienna-light": "#E07040",
+      "--near-black": "#1A1A1A",
+      "--warm-gray": "#5A5449",
+      "--light-gray": "#8C8377",
+      "--white": "#FFFFFF",
+      "--white-warm": "#FAFAF8",
+      "--white-cool": "#F8F8F6",
+      "--divider": "#EDEDEA"
+    },
+    "primary": { "name": "Pantry Green", "hex": "#2A4D1E", "usage": "Primary actions, nav background, CTA buttons, verified sourcing badges" },
+    "accent": { "name": "Sienna", "hex": "#C8561A", "usage": "The period after 'Pantry', accent badges, section tags, deal highlights, star ratings" },
+    "warmNeutral": { "name": "Near Black", "hex": "#1A1A1A", "usage": "Body text, headings, dark backgrounds (footer, closing section)" },
+    "supportNeutral": { "name": "Warm Gray", "hex": "#5A5449", "usage": "Secondary text, descriptions, meta info" },
+    "surface": { "name": "Warm White", "hex": "#FAFAF8", "usage": "Page background, section backgrounds" },
+    "paleGreen": { "name": "Pale Green", "hex": "#EDF4E3", "usage": "Badge backgrounds, tag backgrounds, savings highlights" }
+  },
+  "typography": {
+    "display": {
+      "family": "Fraunces",
+      "role": "Display / serif headings",
+      "weights": {
+        "700": { "usage": "H1, H2 (section titles), hero headlines" },
+        "800": { "usage": "Hero H1, step numbers, stat numbers, price callouts" }
+      },
+      "styles": {
+        "italic": "Use for emphasis in headlines — the green italic em style within h1, h2. Not for body copy."
+      },
+      "googleFontsImport": "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap",
+      "note": "Fraunces has optical sizing — 'opsz' param in the import is intentional for large display use"
+    },
+    "body": {
+      "family": "DM Sans",
+      "role": "Body text, UI labels, navigation, descriptions",
+      "weights": {
+        "300": "Light — only for large descriptive text, body copy",
+        "400": "Regular — default for body, descriptions",
+        "500": "Medium — nav links, labels, form fields",
+        "600": "Semi-bold — CTAs, button text, strong labels",
+        "700": "Bold — only for section headers, strong emphasis"
+      },
+      "googleFontsImport": "https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300..700;1,300..700&display=swap"
+    },
+    "mono": {
+      "family": "DM Mono or system monospace",
+      "role": "Price displays, deal labels, numerical data",
+      "note": "Fraunces is currently used for price/number display. If adding DM Mono, import from Google Fonts."
+    },
+    "typeScale": {
+      "hero_h1": "clamp(3rem, 5.5vw, 5.5rem), weight 800, tracking -0.03em, line-height 1.05",
+      "section_h2": "clamp(2rem, 3.5vw, 3rem), weight 700, tracking -0.02em, line-height 1.15",
+      "card_h3": "1.2rem, weight 700, Fraunces",
+      "body": "1rem, weight 400, line-height 1.65",
+      "small": "0.875rem, weight 500",
+      "micro": "0.75rem, weight 600, letter-spacing 0.04–0.1em, uppercase — for badges, labels, section tags"
+    }
+  },
+  "iconography": {
+    "style": "Custom inline SVG — no icon library (no Heroicons, Phosphor, etc.)",
+    "colorMode": "All SVG icons are currentColor or hardcoded to match brand palette",
+    "commonPatterns": [
+      "Star icon: used for deal badges, recipe bookmarking. Sienna (#C8561A) fill.",
+      "Check-circle: used for sourcing verification, standard checkmarks. Green (#2A4D1E) fill.",
+      "Store/market icons: custom geometric SVGs for H-E-B, farmers market, CSA. Dark gradient backgrounds."
+    ],
+    "deconstructed": {
+      "herb": "Use for sourcing/farm badges — warm terracotta/gold tones",
+      "egg": "Use for pasture-raised, farm-direct indicators",
+      "tomato": "Use for fresh/seasonal indicators",
+      "fish": "Use for wild-caught indicators"
+    }
+  },
+  "imagery": {
+    "photoStyle": "Editorial flatlay, warm morning light, wooden table surfaces. Ingredients + recipe cards + ledger. Rich, tactile, appetizing.",
+    "backgrounds": [
+      "Warm white (#FAFAF8) for general surfaces",
+      "Pale green (#EDF4E3) for sourcing/quality sections",
+      "Near black (#1A1A1A) for dramatic contrast sections (footer, closing)"
+    ],
+    "heroImage": {
+      "prompt": "Bright editorial flatlay, morning light, wooden kitchen table, recipe cards, handwritten ledger, Pantry brand jar with dry goods, heirloom tomatoes, farm eggs, fresh herbs, warm ambient mood",
+      "style": "editorial, warm, tactile, appetizing, Austin market aesthetic"
+    },
+    "doNotUse": [
+      "Stock photo food shots that look like marketing",
+      "Generic AI-generated food imagery without Pantry's editorial warmth",
+      "Images with harsh lighting or cold color temperature",
+      "Any photo that doesn't feel local/Austin"
+    ]
+  },
+  "motion": {
+    "hoverStates": "0.2s ease transitions on color, background, box-shadow",
+    "cardHover": "translateY(-3px to -4px) + shadow lift",
+    "floatingCards": "Subtle 4-5s ease-in-out infinite animation on hero floating badges",
+    "scrollBehavior": "scroll-behavior: smooth (CSS default)",
+    "doNotUse": [
+      "Fast snap animations",
+      "Bouncy spring animations on structural UI",
+      "Page-transition animations within the app (keep it fast)"
+    ]
+  },
+  "spacingAndLayout": {
+    "sectionPadding": "100px top/bottom on desktop, 56px on mobile",
+    "heroPadding": "120px top, 80px bottom, side padding 80px",
+    "maxWidth": "1400px",
+    "gridDefaults": [
+      "2-col grid for standard sections",
+      "3-col grid for deal cards, step cards, testimonials",
+      "4-col grid for stat strips"
+    ],
+    "borderRadius": {
+      "cards": "16px",
+      "badges": "6px (small), 20px (pill)",
+      "appWindow": "14px"
+    }
+  },
+  "appSurface": {
+    "_comment": "Styles specific to the planner.ejs and app UI, not the landing page",
+    "sidebarBackground": "#F8F8F6",
+    "appBackground": "#FFFFFF",
+    "cardBorder": "1px solid var(--divider) = #EDEDEA",
+    "activeNavItem": "background: #E8EFDE (pale green tint)",
+    "sourcingTags": {
+      "greenBadge": { "background": "var(--green-pale)", "color": "var(--green)", "label": "sourced" },
+      "farmBadge": { "background": "#FDF3E8", "color": "#9A5220", "label": "farm-direct" }
+    },
+    "priceDisplay": {
+      "font": "Fraunces, weight 800",
+      "color": "var(--green)",
+      "appStyle": "larger (0.9rem+), prominent"
+    }
+  },
+  "webLanding": {
+    "sections": [
+      { "name": "Hero", "bg": "white", "accent": "hero-deal card with dark gradient" },
+      { "name": "Margin Strip", "bg": "near-black (#1A1A1A)", "type": "stats grid" },
+      { "name": "How It Works", "bg": "white", "type": "3 steps" },
+      { "name": "Market Intelligence", "bg": "white-cool (#F8F8F6)", "type": "3 deal cards" },
+      { "name": "The Pantry Standard", "bg": "white", "type": "2-col with image grid" },
+      { "name": "Social Proof", "bg": "white", "type": "testimonials" },
+      { "name": "FAQ", "bg": "white-cool", "type": "accordion" },
+      { "name": "Closing CTA", "bg": "near-black", "type": "centered, values strip" },
+      { "name": "Footer", "bg": "#141412", "type": "minimal" }
+    ]
+  },
+  "donts": [
+    "Don't use sienna as the primary brand color — green is primary",
+    "Don't replace Fraunces with a different serif (Playfair Display, Lora, etc.)",
+    "Don't use generic stock food photography",
+    "Don't remove the sienna period from the logo wordmark",
+    "Don't use more than 3 brand colors in a single composition",
+    "Don't put ultra-processed food imagery near Pantry Standard sections",
+    "Don't use the brand green (#2A4D1E) for text on white — use near-black (#1A1A1A)"
+  ]
+}

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FAF7F2;
+      --green: #2A4D1E;
+      --green-light: #3D6B2D;
+      --green-pale: #E8EFDE;
+      --sienna: #C8561A;
+      --near-black: #1A1A18;
+      --warm-gray: #5A5449;
+      --light-gray: #8C8377;
+      --divider: #DDD8CF;
+    }
+    body { min-height: 100vh; background: var(--cream); color: var(--near-black); font-family: 'DM Sans', system-ui, sans-serif; line-height: 1.6; }
+    nav {
+      position: fixed; inset: 0 0 auto; z-index: 10; min-height: 64px; padding: 12px 32px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      background: rgba(250,247,242,0.96); border-bottom: 1px solid var(--divider);
+    }
+    .nav-logo { color: var(--green); font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+    .nav-logo span { color: var(--sienna); }
+    .nav-actions { display: flex; align-items: center; gap: 22px; }
+    .nav-actions a { color: var(--warm-gray); font-size: 0.875rem; font-weight: 500; text-decoration: none; }
+    .nav-actions a:hover { color: var(--green); }
+    .sign-out { padding: 8px 14px; border: 1px solid var(--divider); border-radius: 7px; background: #fff; color: var(--warm-gray); font: 600 0.82rem 'DM Sans', sans-serif; cursor: pointer; }
+    .sign-out:hover { border-color: var(--green); color: var(--green); }
+    a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--sienna); outline-offset: 3px; }
+    .profile-wrap { width: min(100% - 40px, 720px); margin: 0 auto; padding: 112px 0 64px; }
+    .profile-wrap h1 { margin-bottom: 8px; color: var(--near-black); font: 800 clamp(2.2rem, 5vw, 3rem)/1.15 'Fraunces', serif; letter-spacing: -0.03em; }
+    .profile-wrap h1 em { color: var(--green); font-weight: 600; }
+    .profile-intro { margin-bottom: 30px; color: var(--warm-gray); }
+    .profile-card { padding: 32px; border: 1px solid var(--divider); border-radius: 18px; background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+    .profile-card h2 { margin-bottom: 18px; font: 700 1.25rem 'Fraunces', serif; }
+    .account-email { margin-bottom: 30px; }
+    .account-email label, .meal-count-item label { display: block; margin-bottom: 7px; color: var(--warm-gray); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .account-email input, .meal-count-item input {
+      width: 100%; min-height: 46px; padding: 10px 13px; border: 1.5px solid var(--divider); border-radius: 9px;
+      background: var(--cream); color: var(--near-black); font: 500 0.95rem 'DM Sans', sans-serif;
+    }
+    .account-email input[readonly] { color: var(--warm-gray); }
+    fieldset { min-width: 0; margin: 0 0 30px; padding: 0; border: 0; }
+    legend { margin-bottom: 12px; font: 700 1.08rem 'Fraunces', serif; }
+    .dietary-flags { display: flex; flex-wrap: wrap; gap: 10px; }
+    .flag-chip {
+      display: flex; align-items: center; gap: 7px; padding: 8px 14px; border: 1.5px solid var(--divider); border-radius: 20px;
+      background: var(--cream); color: var(--near-black); font-size: 0.87rem; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+    }
+    .flag-chip input { width: 16px; height: 16px; margin: 0; accent-color: var(--green); }
+    .flag-chip:has(input:checked) { border-color: var(--green); background: var(--green-pale); color: var(--green); }
+    .flag-chip:focus-within { outline: 3px solid var(--sienna); outline-offset: 2px; }
+    .meal-count-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .meal-count-item input { background: #fff; }
+    .meal-count-item input:focus { border-color: var(--green); }
+    .profile-save { min-height: 46px; padding: 11px 20px; border: 0; border-radius: 9px; background: var(--green); color: #fff; font: 700 0.95rem 'DM Sans', sans-serif; cursor: pointer; }
+    .profile-save:hover { background: var(--green-light); }
+    .profile-save:disabled { opacity: 0.6; cursor: wait; }
+    .save-feedback { min-height: 24px; margin-top: 12px; color: var(--green); font-size: 0.9rem; }
+    .save-feedback.error { color: #b42318; }
+    .payment-card { margin-top: 20px; }
+    .payment-card h2 { margin-bottom: 8px; }
+    .payment-offering-name { margin-bottom: 5px; color: var(--near-black); font: 700 1.2rem 'Fraunces', serif; }
+    .payment-description { margin-bottom: 20px; color: var(--warm-gray); }
+    .payment-active { margin-bottom: 16px; color: var(--green); font-weight: 700; }
+    .payment-price { margin-bottom: 20px; color: var(--green); font: 700 1.45rem 'Fraunces', serif; }
+    .payment-price span { color: var(--warm-gray); font: 500 0.9rem 'DM Sans', sans-serif; }
+    .payment-checkout { min-height: 46px; padding: 11px 20px; border: 0; border-radius: 9px; background: var(--sienna); color: #fff; font: 700 0.95rem 'DM Sans', sans-serif; cursor: pointer; }
+    .payment-checkout:hover { background: #aa4616; }
+    .payment-checkout:disabled { opacity: 0.6; cursor: wait; }
+    .payment-feedback { min-height: 24px; margin-top: 12px; color: var(--warm-gray); font-size: 0.9rem; }
+    .payment-feedback.error, .payment-blocker { color: #b42318; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    @media (max-width: 560px) {
+      nav { padding: 12px 16px; gap: 10px; }
+      .nav-actions { gap: 12px; }
+      .nav-actions a { font-size: 0.8rem; }
+      .sign-out { padding: 7px 9px; font-size: 0.76rem; }
+      .profile-wrap { width: min(100% - 32px, 720px); padding-top: 100px; }
+      .profile-card { padding: 23px 18px; }
+      .dietary-flags { gap: 8px; }
+      .flag-chip { padding: 7px 10px; font-size: 0.82rem; }
+      .meal-count-grid { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <% const savedDiets = Array.isArray(dietPreferences) ? dietPreferences : []; %>
+  <% const savedCounts = mealCountDefaults || {}; %>
+  <nav aria-label="Main navigation">
+    <a class="nav-logo" href="/planner">Pantry<span>.</span></a>
+    <div class="nav-actions">
+      <a href="/planner">Planner</a>
+      <a href="/pantry">Pantry</a>
+      <button class="sign-out" type="button" onclick="signOut()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="profile-wrap">
+    <h1>Your <em>profile.</em></h1>
+    <p class="profile-intro">Keep your meal preferences up to date for your next visit.</p>
+
+    <form class="profile-card" id="profileForm">
+      <h2>Account</h2>
+      <div class="account-email">
+        <label for="profileEmail">Email</label>
+        <input id="profileEmail" type="email" value="<%= user.email %>" readonly aria-readonly="true">
+      </div>
+
+      <fieldset>
+        <legend>Dietary preferences</legend>
+        <div class="dietary-flags">
+          <label class="flag-chip"><input type="checkbox" name="dietPreferences" value="vegetarian" <%= savedDiets.includes('vegetarian') ? 'checked' : '' %>> Vegetarian</label>
+          <label class="flag-chip"><input type="checkbox" name="dietPreferences" value="vegan" <%= savedDiets.includes('vegan') ? 'checked' : '' %>> Vegan</label>
+          <label class="flag-chip"><input type="checkbox" name="dietPreferences" value="gluten-free" <%= savedDiets.includes('gluten-free') ? 'checked' : '' %>> Gluten-free</label>
+          <label class="flag-chip"><input type="checkbox" name="dietPreferences" value="dairy-free" <%= savedDiets.includes('dairy-free') ? 'checked' : '' %>> Dairy-free</label>
+          <label class="flag-chip"><input type="checkbox" name="dietPreferences" value="paleo" <%= savedDiets.includes('paleo') ? 'checked' : '' %>> Paleo</label>
+          <label class="flag-chip"><input type="checkbox" name="dietPreferences" value="keto" <%= savedDiets.includes('keto') ? 'checked' : '' %>> Keto</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Meals per week</legend>
+        <div class="meal-count-grid">
+          <% const mealFields = [['dinners', 'Dinners', 5], ['lunches', 'Lunches', 5], ['breakfasts', 'Breakfasts', 7], ['snacks', 'Snacks', 3]]; %>
+          <% mealFields.forEach(([key, label, fallback]) => { %>
+            <% const count = savedCounts[key]; %>
+            <% const value = Number.isInteger(count) && count >= 0 && count <= 7 ? count : fallback; %>
+            <div class="meal-count-item">
+              <label for="count-<%= key %>"><%= label %></label>
+              <input id="count-<%= key %>" type="number" min="0" max="7" step="1" value="<%= value %>" required>
+            </div>
+          <% }); %>
+        </div>
+      </fieldset>
+
+      <button class="profile-save" id="saveProfile" type="submit">Save preferences</button>
+      <div class="save-feedback" id="saveFeedback" role="status" aria-live="polite"></div>
+    </form>
+
+    <% const paymentStatus = paymentPresentation || { available: false, blocker: 'Checkout is currently unavailable.' }; %>
+    <section class="profile-card payment-card" aria-labelledby="paymentHeading">
+      <h2 id="paymentHeading">Account purchase</h2>
+      <% if (paymentStatus.available && paymentStatus.offering) { %>
+        <p class="payment-offering-name"><%= paymentStatus.offering.name %></p>
+        <% if (paymentStatus.hasPaidAccess) { %>
+          <p class="payment-active" role="status">Paid access is active for this account.</p>
+        <% } else { %>
+          <p class="payment-description">Continue to the secure checkout for the configured Pantry offering.</p>
+        <% } %>
+        <p class="payment-price"><span class="sr-only"><%= paymentStatus.offering.name %>: </span>$<%= paymentStatus.offering.amountText %> <span>/<%= paymentStatus.offering.intervalLabel %></span></p>
+        <% if (!paymentStatus.hasPaidAccess) { %>
+          <form id="checkoutForm">
+            <button class="payment-checkout" id="checkoutButton" type="submit">Continue to checkout</button>
+            <div class="payment-feedback" id="checkoutFeedback" role="status" aria-live="polite"></div>
+          </form>
+        <% } %>
+      <% } else { %>
+        <p class="payment-blocker" role="status"><%= paymentStatus.blocker || 'Checkout is currently unavailable.' %></p>
+      <% } %>
+    </section>
+  </main>
+
+  <script>
+    document.getElementById('profileForm').addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const button = document.getElementById('saveProfile');
+      const feedback = document.getElementById('saveFeedback');
+      feedback.textContent = '';
+      feedback.classList.remove('error');
+      if (!this.reportValidity()) return;
+      button.disabled = true;
+      const dietPreferences = [...this.querySelectorAll('input[name="dietPreferences"]:checked')].map((input) => input.value);
+      const mealCountDefaults = {};
+      ['dinners', 'lunches', 'breakfasts', 'snacks'].forEach((key) => {
+        mealCountDefaults[key] = Number(document.getElementById('count-' + key).value);
+      });
+
+      try {
+        const response = await fetch('/profile/preferences', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dietPreferences, mealCountDefaults })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.message || 'Could not save preferences.');
+        feedback.textContent = 'Your preferences have been saved.';
+      } catch (error) {
+        feedback.textContent = error.message || 'Could not save preferences. Please try again.';
+        feedback.classList.add('error');
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm) checkoutForm.addEventListener('submit', async function (event) {
+      event.preventDefault();
+      const button = document.getElementById('checkoutButton');
+      const feedback = document.getElementById('checkoutFeedback');
+      button.disabled = true;
+      feedback.textContent = 'Opening secure checkout…';
+      feedback.classList.remove('error');
+      try {
+        const response = await fetch('/payments/checkout', { method: 'POST', headers: { Accept: 'application/json' } });
+        const data = await response.json();
+        if (!response.ok || !data.success || typeof data.checkoutUrl !== 'string') {
+          throw new Error(data.message || 'Checkout is currently unavailable.');
+        }
+        window.location.assign(data.checkoutUrl);
+      } catch (error) {
+        feedback.textContent = error.message || 'Checkout is currently unavailable. Please try again.';
+        feedback.classList.add('error');
+        button.disabled = false;
+      }
+    });
+
+    async function signOut() {
+      try {
+        const response = await fetch('/auth/logout', { method: 'POST' });
+        if (!response.ok) throw new Error('Sign-out failed. Please try again.');
+        window.location.href = '/';
+      } catch (error) {
+        const feedback = document.getElementById('saveFeedback');
+        feedback.textContent = error.message;
+        feedback.classList.add('error');
+      }
+    }
+  </script>
+</body>
+</html>

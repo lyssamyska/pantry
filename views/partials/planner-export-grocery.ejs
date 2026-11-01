@@ -1,0 +1,123 @@
+<%# Renders the grocery list the same way renderGroceryByStore in views/planner.ejs
+    does, but as a server-rendered EJS partial so this printable page can read
+    straight out of the DB without re-running the JS bucketing logic.
+    Expects: { byCategory, byStore: { stores, other, pantry, csa } } %>
+<%
+  const fmtPrice = (n) => `$${Number(n || 0).toFixed(2)}`;
+  const getGroceryLineCost = (item) => {
+    const lineTotal = item && item.line_total;
+    if (lineTotal !== null && lineTotal !== undefined && lineTotal !== '' && Number.isFinite(Number(lineTotal))) {
+      return Number(lineTotal);
+    }
+    const price = Number(item && item.best_price);
+    if (!Number.isFinite(price)) return 0;
+    const match = String((item && item.quantity) || '').match(/^[\/\\.0-9]+/);
+    const quantity = match ? parseFloat(match[0]) : 1;
+    return price * (Number.isFinite(quantity) ? quantity : 1);
+  };
+  const storeEntries = Object.entries((byStore && byStore.stores) || {})
+    .map(([name, items]) => ({
+      name,
+      items,
+      subtotal: items.reduce((s, i) => s + getGroceryLineCost(i), 0)
+    }))
+    .filter(e => e.items && e.items.length > 0)
+    .sort((a, b) => b.subtotal - a.subtotal);
+  const other = (byStore && byStore.other) || [];
+  const pantry = (byStore && byStore.pantry) || [];
+  const csa = (byStore && byStore.csa) || [];
+  const otherSubtotal = other.reduce((s, i) => s + getGroceryLineCost(i), 0);
+%>
+
+<% if (storeEntries.length === 0 && other.length === 0 && pantry.length === 0 && csa.length === 0) { %>
+  <div class="grocery-store-empty-stub">No items yet — generate a meal plan on the planner page to build your grocery list.</div>
+<% } %>
+
+<% for (const entry of storeEntries) { %>
+  <div class="grocery-store">
+    <div class="grocery-store-header">
+      <span class="grocery-store-name"><%= entry.name %></span>
+      <span class="grocery-store-subtotal">Subtotal: <%= fmtPrice(entry.subtotal) %></span>
+    </div>
+    <% for (const item of entry.items) { %>
+      <%
+        const inPantry = !!item.in_pantry;
+        const inCsa = !inPantry && !!item.in_csa;
+        const itemClass = inPantry ? 'grocery-item grocery-item-pantry'
+          : inCsa ? 'grocery-item grocery-item-csa'
+          : 'grocery-item';
+        const hasPrice = Boolean(item.best_price) && Number.isFinite(Number(item.best_price));
+        const priceText = hasPrice
+          ? `${fmtPrice(getGroceryLineCost(item))}${item.best_store && !inPantry && !inCsa ? ` at ${item.best_store}` : ''}`
+          : '—';
+        const priceClass = hasPrice ? 'grocery-price-inline' : 'grocery-price-inline grocery-price-inline--none';
+      %>
+      <div class="<%= itemClass %>">
+        <div class="grocery-dot"></div>
+        <span class="grocery-name">
+          <% if (inPantry) { %><span class="grocery-pantry-tag">&#x2713; in pantry</span> <% } %>
+          <% if (inCsa) { %><span class="grocery-csa-tag">&#x2713; from CSA</span> <% } %>
+          <%= item.name %>
+          <% if (typeof item.note === 'string' && item.note.trim()) { %><span class="grocery-note-print">Note: <%= item.note.trim() %></span><% } %>
+        </span>
+        <% if (item.quantity) { %><span class="grocery-qty"><%= item.quantity %></span><% } %>
+        <span class="<%= priceClass %>"><%= priceText %></span>
+      </div>
+    <% } %>
+  </div>
+<% } %>
+
+<% if (other.length > 0) { %>
+  <div class="grocery-store">
+    <div class="grocery-store-header">
+      <span class="grocery-store-name">Other</span>
+      <span class="grocery-store-subtotal">Subtotal: <%= fmtPrice(otherSubtotal) %></span>
+    </div>
+    <% for (const item of other) { %>
+      <%
+        const hasPrice = Boolean(item.best_price) && Number.isFinite(Number(item.best_price));
+        const priceText = hasPrice ? fmtPrice(getGroceryLineCost(item)) : '—';
+        const priceClass = hasPrice ? 'grocery-price-inline' : 'grocery-price-inline grocery-price-price-inline--none';
+      %>
+      <div class="grocery-item">
+        <div class="grocery-dot"></div>
+        <span class="grocery-name">
+          <%= item.name %>
+          <% if (typeof item.note === 'string' && item.note.trim()) { %><span class="grocery-note-print">Note: <%= item.note.trim() %></span><% } %>
+        </span>
+        <% if (item.quantity) { %><span class="grocery-qty"><%= item.quantity %></span><% } %>
+        <span class="<%= priceClass %>"><%= priceText %></span>
+      </div>
+    <% } %>
+  </div>
+<% } %>
+
+<% if (pantry.length > 0) { %>
+  <div class="grocery-category grocery-category-pantry">
+    <h4>In Pantry</h4>
+    <% for (const item of pantry) { %>
+      <div class="grocery-item grocery-item-pantry">
+        <div class="grocery-dot"></div>
+        <span class="grocery-name"><span class="grocery-pantry-tag">&#x2713; in pantry</span> <%= item.name %>
+          <% if (typeof item.note === 'string' && item.note.trim()) { %><span class="grocery-note-print">Note: <%= item.note.trim() %></span><% } %>
+        </span>
+        <% if (item.quantity) { %><span class="grocery-qty"><%= item.quantity %></span><% } %>
+      </div>
+    <% } %>
+  </div>
+<% } %>
+
+<% if (csa.length > 0) { %>
+  <div class="grocery-category grocery-category-csa">
+    <h4>From CSA Box</h4>
+    <% for (const item of csa) { %>
+      <div class="grocery-item grocery-item-csa">
+        <div class="grocery-dot"></div>
+        <span class="grocery-name"><span class="grocery-csa-tag">&#x2713; from CSA</span> <%= item.name %>
+          <% if (typeof item.note === 'string' && item.note.trim()) { %><span class="grocery-note-print">Note: <%= item.note.trim() %></span><% } %>
+        </span>
+        <% if (item.quantity) { %><span class="grocery-qty"><%= item.quantity %></span><% } %>
+      </div>
+    <% } %>
+  </div>
+<% } %>

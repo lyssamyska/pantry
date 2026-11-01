@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FAF7F2;
+      --cream-dark: #F0EBE0;
+      --green: #2A4D1E;
+      --green-light: #3D6B2D;
+      --green-pale: #E8EFDE;
+      --sienna: #C8561A;
+      --sienna-light: #E07040;
+      --near-black: #1A1A18;
+      --warm-gray: #5A5449;
+      --light-gray: #8C8377;
+      --divider: #DDD8CF;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #fff;
+      color: var(--near-black);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: #fff;
+      border-bottom: 1px solid var(--divider);
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      z-index: 100;
+    }
+    .nav-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--near-black);
+      letter-spacing: -0.01em;
+    }
+    .nav-logo span { color: var(--sienna); }
+
+    /* Onboarding wrap */
+    .onboarding-wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 100px 24px 60px;
+    }
+    .onboarding-wrap h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--near-black);
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+    }
+    .onboarding-wrap > p {
+      color: var(--warm-gray);
+      font-size: 1rem;
+      margin-bottom: 36px;
+    }
+
+    /* Step indicators */
+    .step-indicators {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+    .step-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--divider);
+      transition: background 0.2s;
+    }
+    .step-dot.active { background: var(--green); }
+
+    /* Step headings */
+    .step h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--near-black);
+      margin-bottom: 8px;
+    }
+    .step > p {
+      color: var(--light-gray);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+
+    /* Dietary flag chips (mirrors planner.ejs) */
+    .dietary-flags { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
+    .flag-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--divider);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      background: var(--cream);
+    }
+    .flag-chip input { display: none; }
+    .flag-chip:has(input:checked) {
+      background: var(--green-pale);
+      border-color: var(--green);
+      color: var(--green);
+    }
+    .flag-chip:hover { border-color: var(--green-light); }
+
+    /* Meal count grid */
+    .meal-count-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .meal-count-item label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--warm-gray);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .meal-count-item input[type="number"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--divider);
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--near-black);
+      background: #fff;
+      appearance: none;
+      -moz-appearance: textfield;
+      transition: border-color 0.2s;
+    }
+    .meal-count-item input[type="number"]:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+    .meal-count-item input[type="number"]::-webkit-inner-spin-button,
+    .meal-count-item input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
+
+    /* Button row */
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn-finish {
+      flex: 1;
+      background: var(--green);
+      color: var(--cream);
+      border: none;
+      padding: 15px 28px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.2s;
+    }
+    .btn-finish:hover { background: var(--green-light); }
+    .btn-finish:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-next {
+      flex: 1;
+      background: var(--green);
+      color: var(--cream);
+      border: none;
+      padding: 15px 28px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.2s;
+    }
+    .btn-next:hover { background: var(--green-light); }
+    .btn-skip, .btn-back {
+      background: none;
+      border: none;
+      color: var(--light-gray);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 4px;
+      transition: color 0.2s;
+    }
+    .btn-skip:hover, .btn-back:hover { color: var(--warm-gray); }
+
+    /* Step complete */
+    #step-complete {
+      text-align: center;
+      padding: 40px 0;
+    }
+    #step-complete .checkmark {
+      margin-bottom: 24px;
+    }
+    #step-complete h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--near-black);
+      margin-bottom: 10px;
+    }
+    #step-complete p {
+      color: var(--light-gray);
+      font-size: 0.95rem;
+    }
+
+    .error-msg {
+      color: #c0392b;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">Pantry<span>.</span></div>
+  </nav>
+
+  <div class="onboarding-wrap">
+    <h1>Welcome to Pantry.</h1>
+    <p>Let's personalize your experience. Takes about 30 seconds.</p>
+
+    <div class="step-indicators">
+      <div class="step-dot active" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+    </div>
+
+    <div class="step" id="step-1">
+      <h2>Any dietary preferences?</h2>
+      <p>We'll filter recipes to fit. You can change this any time.</p>
+      <div class="dietary-flags">
+        <label class="flag-chip"><input type="checkbox" value="vegetarian"> Vegetarian</label>
+        <label class="flag-chip"><input type="checkbox" value="vegan"> Vegan</label>
+        <label class="flag-chip"><input type="checkbox" value="gluten-free"> Gluten-free</label>
+        <label class="flag-chip"><input type="checkbox" value="dairy-free"> Dairy-free</label>
+        <label class="flag-chip"><input type="checkbox" value="paleo"> Paleo</label>
+        <label class="flag-chip"><input type="checkbox" value="keto"> Keto</label>
+      </div>
+      <div class="btn-row">
+        <button class="btn-skip" onclick="nextStep()">Skip</button>
+        <button class="btn-next" onclick="nextStep()">Continue &rarr;</button>
+      </div>
+    </div>
+
+    <div class="step" id="step-2" style="display:none;">
+      <h2>How many meals per week?</h2>
+      <p>These become your defaults. Adjust per plan any time.</p>
+      <div class="meal-count-grid">
+        <div class="meal-count-item">
+          <label for="count-dinners">Dinners</label>
+          <input type="number" id="count-dinners" min="0" max="7" value="5">
+        </div>
+        <div class="meal-count-item">
+          <label for="count-lunches">Lunches</label>
+          <input type="number" id="count-lunches" min="0" max="7" value="5">
+        </div>
+        <div class="meal-count-item">
+          <label for="count-breakfasts">Breakfasts</label>
+          <input type="number" id="count-breakfasts" min="0" max="7" value="7">
+        </div>
+        <div class="meal-count-item">
+          <label for="count-snacks">Snacks</label>
+          <input type="number" id="count-snacks" min="0" max="7" value="3">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-back" onclick="prevStep()">&larr; Back</button>
+        <button class="btn-finish" id="finishBtn" onclick="finishOnboarding()">Set up my pantry</button>
+      </div>
+      <div class="error-msg" id="onboardingError">Something went wrong. Please try again.</div>
+    </div>
+
+    <div id="step-complete" style="display:none;">
+      <div class="checkmark">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="30" stroke="#C8561A" stroke-width="3"/>
+          <path d="M18 32l10 10 18-18" stroke="#C8561A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Your pantry is ready.</h2>
+      <p>Taking you to your planner&hellip;</p>
+    </div>
+  </div>
+
+  <script>
+    function nextStep() {
+      document.getElementById('step-1').style.display = 'none';
+      document.getElementById('step-2').style.display = 'block';
+      document.getElementById('dot-1').classList.remove('active');
+      document.getElementById('dot-2').classList.add('active');
+    }
+
+    function prevStep() {
+      document.getElementById('step-2').style.display = 'none';
+      document.getElementById('step-1').style.display = 'block';
+      document.getElementById('dot-2').classList.remove('active');
+      document.getElementById('dot-1').classList.add('active');
+    }
+
+    async function finishOnboarding() {
+      const btn = document.getElementById('finishBtn');
+      btn.disabled = true;
+
+      const dietPreferences = [...document.querySelectorAll('#step-1 .flag-chip input:checked')].map(i => i.value);
+      const mealCountDefaults = {
+        dinners: parseInt(document.getElementById('count-dinners').value) || 5,
+        lunches: parseInt(document.getElementById('count-lunches').value) || 5,
+        breakfasts: parseInt(document.getElementById('count-breakfasts').value) || 7,
+        snacks: parseInt(document.getElementById('count-snacks').value) || 3
+      };
+
+      try {
+        const res = await fetch('/api/onboarding/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dietPreferences, mealCountDefaults })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Failed');
+
+        document.getElementById('step-2').style.display = 'none';
+        document.getElementById('step-complete').style.display = 'block';
+        document.querySelector('.step-indicators').style.display = 'none';
+
+        setTimeout(() => { window.location.href = '/planner'; }, 1800);
+      } catch (err) {
+        console.error('[finishOnboarding]', err);
+        const errEl = document.getElementById('onboardingError');
+        errEl.style.display = 'block';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

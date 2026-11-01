@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #FAF7F2;
+      --cream-dark: #F0EBE0;
+      --green: #2A4D1E;
+      --green-light: #3D6B2D;
+      --green-pale: #E8EFDE;
+      --sienna: #C8561A;
+      --sienna-light: #E07040;
+      --near-black: #1A1A18;
+      --warm-gray: #5A5449;
+      --light-gray: #8C8377;
+      --divider: #DDD8CF;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--near-black);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--green); color: var(--cream); }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(250,247,242,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--divider);
+    }
+    .nav-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--sienna); }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a { color: var(--warm-gray); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--green); }
+    .nav-cta {
+      background: var(--green);
+      color: var(--cream);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 6px;
+      letter-spacing: 0.02em;
+      transition: background 0.2s;
+      border: 0;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+    }
+    .nav-cta:hover { background: var(--green-light); }
+
+    .pantry-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 120px 48px 60px;
+    }
+    .pantry-wrap h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(2.2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--near-black);
+      margin-bottom: 12px;
+    }
+    .pantry-wrap h1 em { font-style: italic; color: var(--green); }
+    .pantry-wrap > p.lead {
+      font-size: 1rem;
+      color: var(--warm-gray);
+      max-width: 520px;
+      line-height: 1.65;
+      margin-bottom: 36px;
+    }
+
+    .pantry-card {
+      background: white;
+      border-radius: 20px;
+      padding: 32px 36px;
+      border: 1px solid var(--divider);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      margin-bottom: 28px;
+    }
+    .pantry-card h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--near-black);
+      margin-bottom: 18px;
+    }
+
+    .pantry-form { display: flex; flex-direction: column; gap: 16px; }
+    .pantry-form-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 16px;
+    }
+    .pantry-form .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .pantry-form label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--warm-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .pantry-form input {
+      padding: 12px 16px;
+      border: 1.5px solid var(--divider);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--near-black);
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+    .pantry-form input:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+    .pantry-form .btn-generate {
+      width: 100%;
+      background: var(--green);
+      color: var(--cream);
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: background 0.2s;
+    }
+    .pantry-form .btn-generate:hover { background: var(--green-light); }
+    .pantry-form .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error-msg {
+      font-size: 0.85rem;
+      color: var(--sienna);
+      background: #FDF3E8;
+      border: 1px solid rgba(200,86,26,0.25);
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: none;
+    }
+    .error-msg.visible { display: block; }
+
+    .pantry-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .pantry-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--divider);
+    }
+    .pantry-item:last-child { border-bottom: none; }
+    .pantry-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green-light);
+      flex-shrink: 0;
+    }
+    .pantry-name {
+      font-size: 0.95rem;
+      color: var(--near-black);
+      flex: 1;
+      font-weight: 500;
+    }
+    .pantry-qty {
+      font-size: 0.8rem;
+      color: var(--light-gray);
+      font-weight: 500;
+      background: var(--cream);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+    .pantry-remove {
+      background: transparent;
+      border: none;
+      color: var(--light-gray);
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0 6px;
+      cursor: pointer;
+      transition: color 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .pantry-remove:hover { color: var(--sienna); }
+
+    .pantry-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--light-gray);
+    }
+    .pantry-empty strong {
+      display: block;
+      font-weight: 600;
+      color: var(--warm-gray);
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .pantry-wrap { padding: 100px 24px 40px; }
+      .pantry-card { padding: 24px; }
+      .pantry-form-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      nav { padding: 12px; gap: 8px; }
+      .nav-links { gap: 12px; }
+      .nav-cta { padding: 7px 9px; font-size: 0.72rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-logo">Pantry<span>.</span></div>
+    <ul class="nav-links">
+      <li><a href="/planner">Planner</a></li>
+    </ul>
+    <% if (userId) { %>
+      <a href="/profile" class="nav-cta">Profile</a>
+      <button type="button" class="nav-cta" onclick="signOut()">Sign out</button>
+    <% } else { %>
+      <a href="/?account=1" class="nav-cta">Sign in</a>
+    <% } %>
+  </nav>
+
+  <div class="pantry-wrap">
+    <h1>Your <em>pantry.</em></h1>
+    <p class="lead">Keep track of what's already on your shelf — weeknight plans get pulled aside if these ingredients are accounted for.</p>
+
+    <div class="pantry-card">
+      <h2>Add an item</h2>
+      <form class="pantry-form" id="pantryForm" autocomplete="off">
+        <div class="pantry-form-grid">
+          <div class="form-group">
+            <label for="pantryName">Item</label>
+            <input type="text" id="pantryName" name="name" required placeholder="e.g. Olive oil">
+          </div>
+          <div class="form-group">
+            <label for="pantryQty">Quantity</label>
+            <input type="text" id="pantryQty" name="quantity" required placeholder="e.g. 1">
+          </div>
+          <div class="form-group">
+            <label for="pantryUnit">Unit</label>
+            <input type="text" id="pantryUnit" name="unit" required placeholder="e.g. bottle">
+          </div>
+        </div>
+        <div class="error-msg" id="pantryError" aria-live="polite"></div>
+        <button type="submit" class="btn-generate">Add to pantry</button>
+      </form>
+    </div>
+
+    <div class="pantry-card">
+      <h2>Your items</h2>
+      <div class="pantry-list" id="pantryList">
+        <% if (userId) { %>
+          <% if (items.length === 0) { %>
+            <div class="pantry-empty">
+              <strong>Nothing in your pantry yet</strong>
+              Add your first item using the form above.
+            </div>
+          <% } else { %>
+            <% items.forEach(function(item) { %>
+              <div class="pantry-item">
+                <span class="pantry-dot"></span>
+                <span class="pantry-name"><%= item.name %></span>
+                <span class="pantry-qty"><%= item.quantity %> <%= item.unit %></span>
+                <button class="pantry-remove" type="button" data-item-id="<%= item.id %>" aria-label="Remove <%= item.name %>">×</button>
+              </div>
+            <% }); %>
+          <% } %>
+        <% } else { %>
+          <div class="pantry-empty">
+            <strong>Sign in to view your pantry</strong>
+            Your items will appear here once you're logged in.
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <script id="initial-items" type="application/json"><%= JSON.stringify(items) %></script>
+  </div>
+
+  <script>
+    window._currentUserId = <%= userId || 0 %>;
+
+    async function signOut() {
+      try {
+        const response = await fetch('/auth/logout', { method: 'POST' });
+        if (!response.ok) throw new Error('Sign-out failed. Please try again.');
+        window.location.href = '/';
+      } catch (error) {
+        alert(error.message || 'Sign-out failed. Please try again.');
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function renderPantryItems(items) {
+      var list = document.getElementById('pantryList');
+      if (!list) return;
+      if (!items || items.length === 0) {
+        list.innerHTML = '<div class="pantry-empty"><strong>Nothing in your pantry yet</strong>Add your first item using the form above.</div>';
+        return;
+      }
+      var html = items.map(function (item) {
+        return '<div class="pantry-item">' +
+               '<span class="pantry-dot"></span>' +
+               '<span class="pantry-name">' + escapeHtml(item.name) + '</span>' +
+               '<span class="pantry-qty">' + escapeHtml(item.quantity) + ' ' + escapeHtml(item.unit) + '</span>' +
+               '<button class="pantry-remove" type="button" data-item-id="' + item.id + '" aria-label="Remove ' + escapeHtml(item.name) + '">×</button>' +
+               '</div>';
+      }).join('');
+      list.innerHTML = html;
+    }
+
+    async function loadPantryItems() {
+      if (!window._currentUserId) return;
+      try {
+        var res = await fetch('/api/pantry/' + window._currentUserId);
+        if (!res.ok) throw new Error('Failed to load');
+        var data = await res.json();
+        renderPantryItems(data.items || []);
+      } catch (err) {
+        console.error('[pantry] load error', err);
+      }
+    }
+
+    function showError(msg) {
+      var el = document.getElementById('pantryError');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+    function clearError() {
+      var el = document.getElementById('pantryError');
+      if (!el) return;
+      el.textContent = '';
+      el.classList.remove('visible');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window._currentUserId) {
+        loadPantryItems();
+      }
+
+      var list = document.getElementById('pantryList');
+      if (list) {
+        list.addEventListener('click', async function (e) {
+          var btn = e.target.closest('button.pantry-remove');
+          if (!btn) return;
+          e.preventDefault();
+          var itemId = btn.getAttribute('data-item-id');
+          if (!itemId || !window._currentUserId) return;
+          clearError();
+          btn.disabled = true;
+          try {
+            var res = await fetch('/api/pantry/' + encodeURIComponent(itemId) + '?userId=' + encodeURIComponent(window._currentUserId), { method: 'DELETE' });
+            var data = {};
+            try { data = await res.json(); } catch (_) {}
+            if (!res.ok) {
+              console.error('[pantry] delete failed', res.status);
+              showError(data.error || 'Could not remove item. Please try again.');
+              return;
+            }
+            var row = btn.closest('.pantry-item');
+            if (row) row.remove();
+            if (!list.querySelector('.pantry-item')) {
+              list.innerHTML = '<div class="pantry-empty"><strong>Nothing in your pantry yet</strong>Add your first item using the form above.</div>';
+            }
+          } catch (err) {
+            console.error('[pantry] delete error', err);
+            showError('Network error. Please try again.');
+          } finally {
+            btn.disabled = false;
+          }
+        });
+      }
+
+      var form = document.getElementById('pantryForm');
+      if (form) {
+        form.addEventListener('submit', async function (e) {
+          e.preventDefault();
+          clearError();
+          if (!window._currentUserId) {
+            showError('Sign in to add items to your pantry.');
+            return;
+          }
+          var name = document.getElementById('pantryName').value.trim();
+          var quantity = document.getElementById('pantryQty').value.trim();
+          var unit = document.getElementById('pantryUnit').value.trim();
+          if (!name || !quantity || !unit) {
+            showError('All fields are required.');
+            return;
+          }
+          var btn = form.querySelector('.btn-generate');
+          btn.disabled = true;
+          try {
+            var res = await fetch('/api/pantry', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: window._currentUserId, name: name, quantity: quantity, unit: unit })
+            });
+            if (!res.ok) {
+              var errBody = {};
+              try { errBody = await res.json(); } catch (_) {}
+              showError(errBody.error || 'Could not add item. Please try again.');
+              return;
+            }
+            document.getElementById('pantryName').value = '';
+            document.getElementById('pantryQty').value = '';
+            document.getElementById('pantryUnit').value = '';
+            await loadPantryItems();
+          } catch (err) {
+            console.error('[pantry] submit error', err);
+            showError('Network error. Please try again.');
+          } finally {
+            btn.disabled = false;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
