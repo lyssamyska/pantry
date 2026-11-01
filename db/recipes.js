@@ -57,21 +57,6 @@ async function getRecipesForMealPlan(options = {}) {
   return result.rows;
 }
 
-async function seedRecipes(recipes) {
-  const client = await pool.connect();
-  try {
-    for (const r of recipes) {
-      await client.query(`
-        INSERT INTO recipes (name, description, prep_time_minutes, cook_time_minutes, protein_type, dietary_flags, sourcing_standard, ingredients, instructions, tags)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT DO NOTHING
-      `, [r.name, r.description, r.prep_time_minutes, r.cook_time_minutes, r.protein_type, r.dietary_flags, r.sourcing_standard, r.ingredients, r.instructions, r.tags]);
-    }
-  } finally {
-    client.release();
-  }
-}
-
 async function getRecipeById(id) {
   const result = await pool.query('SELECT * FROM recipes WHERE id = $1', [id]);
   return result.rows[0];
@@ -164,7 +149,6 @@ module.exports = {
   getRecipesByDietaryFlags,
   getSourcingCompliantRecipes,
   getRecipesForMealPlan,
-  seedRecipes,
   getRecipeById,
   countRecipes,
   getDiscoveryRecipes

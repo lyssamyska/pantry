@@ -4,7 +4,7 @@ const { getUserIdFromCookie } = require('../lib/user-session');
 const { clearSessionCookie } = require('../lib/session');
 
 const router = express.Router();
-const DIETARY_CHOICES = new Set(['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'paleo', 'keto']);
+const DIETARY_CHOICES = new Set(['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'sugar-free', 'paleo', 'keto']);
 const MEAL_COUNT_KEYS = ['dinners', 'lunches', 'breakfasts', 'snacks'];
 
 router.get('/', async (req, res, next) => {

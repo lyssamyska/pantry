@@ -52,6 +52,7 @@ const RECIPES = [
 
 module.exports = {
   name: 'seed_recipes',
+  RECIPES,
   up: async (client) => {
     const insert = `INSERT INTO recipes (name, description, prep_time_minutes, cook_time_minutes, protein_type, dietary_flags, sourcing_standard, ingredients, instructions, tags)
                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9::jsonb, $10)

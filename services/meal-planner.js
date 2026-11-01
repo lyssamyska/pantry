@@ -653,7 +653,7 @@ async function generateMealPlan(options = {}, recipeDb, pricesDb) {
     recipeHasIngredientPhrase(recipe, phraseTokens)
   ));
   if (pool.length === 0) {
-    throw new Error('No recipes available — seed-recipes did not populate the recipes table');
+    throw new Error('No recipes match these preferences — try fewer dietary filters or avoided ingredients');
   }
 
   // Boost bookmarked recipes — sort bookmarked to front, then sourcing, then random

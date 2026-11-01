@@ -2005,6 +2005,7 @@
           <div class="dietary-flags">
             <label class="flag-chip"><input type="checkbox" value="gluten-free" <%= (dietPreferences && dietPreferences.includes('gluten-free')) ? 'checked' : '' %>> Gluten-free</label>
             <label class="flag-chip"><input type="checkbox" value="dairy-free" <%= (dietPreferences && dietPreferences.includes('dairy-free')) ? 'checked' : '' %>> Dairy-free</label>
+            <label class="flag-chip"><input type="checkbox" value="sugar-free" <%= (dietPreferences && dietPreferences.includes('sugar-free')) ? 'checked' : '' %>> Sugar-free</label>
             <label class="flag-chip"><input type="checkbox" value="vegetarian" <%= (dietPreferences && dietPreferences.includes('vegetarian')) ? 'checked' : '' %>> Vegetarian</label>
             <label class="flag-chip"><input type="checkbox" value="vegan" <%= (dietPreferences && dietPreferences.includes('vegan')) ? 'checked' : '' %>> Vegan</label>
           </div>
@@ -5146,7 +5147,6 @@
         const weeklyBudgetTarget = normalizeWeeklyBudgetTarget(document.getElementById('weeklyBudgetTarget').value);
         persistPlannerPreferences(dinners, weeklyBudgetTarget, servings);
 
-        await fetch('/api/planner/seed-recipes', { method: 'POST' });
         const res = await fetch('/api/planner/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -5178,7 +5178,6 @@
         const weeklyBudgetTarget = normalizeWeeklyBudgetTarget(document.getElementById('weeklyBudgetTarget').value);
         persistPlannerPreferences(dinners, weeklyBudgetTarget, servings);
 
-        await fetch('/api/planner/seed-recipes', { method: 'POST' });
         const res = await fetch('/api/planner/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

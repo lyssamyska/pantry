@@ -26,6 +26,7 @@ const RECIPE = {
 
 module.exports = {
   name: 'seed_sweet_potato_meatballs',
+  RECIPES: [RECIPE],
   up: async (client) => {
     await client.query(`
       INSERT INTO recipes (name, description, prep_time_minutes, cook_time_minutes, protein_type, dietary_flags, sourcing_standard, ingredients, instructions, tags)
