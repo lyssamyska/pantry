@@ -1452,6 +1452,12 @@
     .quality-schema { background: var(--green-pale); color: var(--green); }
     .quality-full { background: #EEF2FF; color: #4338CA; }
     .quality-partial { background: #FDF3E8; color: #9A5220; }
+    .quality-microdata { background: var(--green-pale); color: var(--green); }
+    .import-compliance { margin-top: 12px; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; }
+    .import-compliance--ok { background: var(--green-pale); color: var(--green); }
+    .import-compliance--warn { background: #FDF3E8; color: #9A5220; }
+    .import-compliance ul { margin: 6px 0 0 18px; padding: 0; }
+    .import-compliance-tags { font-weight: 600; }
 
     .import-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .import-field { display: flex; flex-direction: column; gap: 6px; }
@@ -2148,6 +2154,7 @@
           <div class="import-ingredients">
             <label>Ingredients (<span id="ingCount">0</span>)</label>
             <div class="ingredient-list" id="importIngredientsList"></div>
+            <div class="import-compliance" id="importCompliance" role="status" style="display:none;"></div>
           </div>
 
           <div class="import-actions">
@@ -2422,9 +2429,8 @@
       return _supportedAustinStoreNames.has(String(name || '').trim());
     }
 
-    // Forward client-side errors to the platform log proxy via a same-origin
-    // endpoint. Surfaces err.message so a thrown failure isn't replaced with a
-    // generic toast.
+    // Log client-side errors to the browser console. Surfaces err.message so a
+    // thrown failure isn't replaced with a generic toast.
     let plannerGenerationInFlight = false;
 
     function escapeHtml(str) {
@@ -4389,7 +4395,7 @@
     function showImportPreview(recipe) {
       const preview = document.getElementById('importPreview');
       const qualityBadge = document.getElementById('qualityBadge');
-      const qualityMap = { schema: 'Schema.org', full: 'Full parse', partial: 'Partial — check ingredients' };
+      const qualityMap = { schema: 'Schema.org', microdata: 'Schema.org microdata', full: 'Full parse', partial: 'Partial — check ingredients' };
       qualityBadge.textContent = qualityMap[recipe.parse_quality] || 'Parsed';
       qualityBadge.className = `quality-badge quality-${recipe.parse_quality || 'partial'}`;
 
@@ -4414,11 +4420,27 @@
 
       const ingList = document.getElementById('importIngredientsList');
       ingList.innerHTML = (recipe.ingredients || []).map(ing =>
-        `<div class="ingredient-chip"><div class="ing-dot"></div><span class="ing-text">${ing}</span></div>`
+        `<div class="ingredient-chip"><div class="ing-dot"></div><span class="ing-text">${escapeHtml(ing)}</span></div>`
       ).join('');
       document.getElementById('ingCount').textContent = recipe.ingredients?.length || 0;
+      renderImportCompliance(recipe.compliance, recipe.dietary_flags);
 
       preview.classList.add('visible');
+    }
+
+    function renderImportCompliance(compliance, flags) {
+      const box = document.getElementById('importCompliance');
+      if (!compliance) { box.style.display = 'none'; return; }
+      const earned = (flags || []).filter(flag => flag === 'gluten-free' || flag === 'sugar-free');
+      const tagLine = earned.length
+        ? `<span class="import-compliance-tags">${earned.map(escapeHtml).join(' · ')}</span>`
+        : '<span class="import-compliance-tags">Not gluten-free or sugar-free</span>';
+      const warnings = compliance.warnings || [];
+      box.className = `import-compliance ${warnings.length ? 'import-compliance--warn' : 'import-compliance--ok'}`;
+      box.innerHTML = warnings.length
+        ? `${tagLine}<ul>${warnings.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul>`
+        : `${tagLine} — passes Pantry's dietary and sourcing checks.`;
+      box.style.display = 'block';
     }
 
     async function saveImportedRecipe() {
