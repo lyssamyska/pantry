@@ -11,6 +11,8 @@
     "test": "node --test tests/*.js"
   },
   "dependencies": {
+    "@neon/config": "^1.14.5",
+    "@neon/env": "^2.1.8",
     "bcryptjs": "^2.4.3",
     "domhandler": "^5.0.3",
     "domutils": "^3.1.0",

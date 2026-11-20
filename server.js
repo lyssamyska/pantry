@@ -1,3 +1,4 @@
+require('./lib/load-env').loadEnvFiles();
 const express = require('express');
 const path = require('path');
 const productPagesRouter = require('./routes/product-pages');

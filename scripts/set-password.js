@@ -3,6 +3,7 @@
 //   npm run set-password -- you@example.com
 // Prompts for the password without echoing it. PANTRY_PASSWORD may be set
 // instead for non-interactive use.
+require('../lib/load-env').loadEnvFiles();
 const readline = require('readline');
 const { normalizeEmail, validatePassword, hashPassword } = require('../lib/auth');
 
@@ -21,7 +22,7 @@ async function main() {
     process.exit(1);
   }
   if (!process.env.DATABASE_URL) {
-    console.error('DATABASE_URL must be set');
+    console.error('DATABASE_URL must be set (or present in .env.local / .env)');
     process.exit(1);
   }
 
