@@ -1,7 +1,7 @@
 /**
  * Database Migration Runner
  *
- * Runs on every deploy via `npm run build`.
+ * Runs on every app start (server.js) and via `npm run migrate`.
  *
  * How it works:
  * 1. Creates core tables (users, _migrations) - always runs, idempotent
@@ -20,16 +20,16 @@
  *     }
  *   };
  */
+require('./lib/load-env').loadEnvFiles();
 const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
+const { poolConfig, migrationDatabaseUrl } = require('./lib/db-config');
 
 async function migrate() {
   console.log('Running migrations...');
+  // Migrations use Neon's direct (unpooled) endpoint when it's configured.
+  const pool = new Pool(poolConfig(migrationDatabaseUrl(), { max: 1 }));
 
   const client = await pool.connect();
   try {

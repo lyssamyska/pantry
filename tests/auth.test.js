@@ -86,7 +86,7 @@ test('setSessionCookie writes an httpOnly signed cookie that getSessionUserId re
 
 function startServer(env) {
   return spawnSync(process.execPath, [path.join(__dirname, '..', 'server.js')], {
-    env: { PATH: process.env.PATH, ...env },
+    env: { PATH: process.env.PATH, PANTRY_SKIP_ENV_FILES: '1', ...env },
     encoding: 'utf8',
     timeout: 10000,
   });

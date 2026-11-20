@@ -7,7 +7,8 @@ Personal meal planning built around Austin grocery prices. Generates a 7-day din
 Express.js + EJS + PostgreSQL (Neon) + Render. No third-party platform services: no Polsia, no payments, no analytics.
 
 ## Running
-- Required env: `DATABASE_URL`, `SESSION_SECRET` (at least 32 chars; the server refuses to start otherwise). Nothing else.
+- Required env: `DATABASE_URL`, `SESSION_SECRET` (at least 32 chars; the server refuses to start otherwise). Optional: `DATABASE_URL_UNPOOLED` (Neon direct endpoint, used for migrations).
+- Local dev: `.env.local` then `.env` are loaded at startup (`lib/load-env.js`); real environment variables always win, and `DATABASE_URL`/`DATABASE_URL_UNPOOLED` are taken together from one source.
 - `npm start` runs migrations, then serves on `PORT` (default 3000).
 - `npm test` (= `node --test tests/*.js`) — no database needed.
 - `npm run set-password -- <email>` sets/resets a password for an existing account (prompts; or set `PANTRY_PASSWORD`). Use it for accounts created back when sign-in was by emailed code.
@@ -27,6 +28,8 @@ Express.js + EJS + PostgreSQL (Neon) + Render. No third-party platform services:
   - `require-auth.js` — `requireAuth` + `rejectMismatchedUserId` route guards
   - `austin-retailers.js` — supported stores, price selection, `PRICE_ESTIMATE_NOTICE`
   - `seed-recipes.js` — seeded recipe catalog with compliance fixes applied
+  - `db-config.js` — node-postgres pool settings (pooled URL for the app, direct URL for migrations, verified TLS, channel binding)
+  - `load-env.js` — `.env.local` / `.env` loader for local development
 - `migrations/` — schema/data changes, applied on startup, each runs once (tracked in `_migrations`). Never edit the effect of an applied migration — add a new one.
 - `scripts/` — one-off CLI tools (`set-password.js`)
 - `views/` — EJS templates (`layout.ejs` is the landing page + sign-in dialog)
@@ -50,6 +53,12 @@ Ported from the starter's `lib/compliance.ts`. Rules are grouped by the flag the
 
 ## Recipe import (`services/recipe-importer.js`)
 Ported from the starter's `lib/scraper.ts`: JSON-LD (`application/ld+json`, arrays, `@graph`, `mainEntity`, array `@type`) → schema.org microdata → Open Graph/HTML fallback. Returns `compliance` (warnings + earned flags) for the preview. `extractRecipeFromHtml(html, url)` is pure and is what the tests exercise.
+
+## Neon
+- Project `broad-hill-77968109`, org `org-green-mud-78199015`, branch `production` (`br-gentle-tooth-bdwz0t6c`). Linked in `.neon` (git-ignored); policy in `neon.ts` (Postgres only, no Neon Auth — Pantry has its own auth).
+- `neon deploy` applies `neon.ts` and pulls `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, `NEON_BRANCH*` into `.env.local` (git-ignored; never commit it).
+- Driver: node-postgres (`pg`) with a pool — the right fit for a long-running Express server on Render. Don't switch to `@neondatabase/serverless` for the app.
+- Migrations run on app start against `DATABASE_URL_UNPOOLED` when set, else `DATABASE_URL`.
 
 ## Database
 - `users` — email, bcrypt `password_hash`, onboarding prefs (`diet_preferences`, `meal_count_defaults`)
