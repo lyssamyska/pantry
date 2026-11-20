@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const { buildLandingContext } = require('./lib/landing-context');
 const productPagesRouter = require('./routes/product-pages');
 const plannerRouter = require('./routes/planner');
 const recipeImportRouter = require('./routes/recipe-import');
@@ -12,12 +11,11 @@ const pricesRouter = require('./routes/prices');
 const authRouter = require('./routes/auth');
 const onboardingRouter = require('./routes/onboarding');
 const profileRouter = require('./routes/profile');
-const paymentsRouter = require('./routes/payments');
 const pantryRouter = require('./routes/pantry');
-const logRouter = require('./routes/log');
 const { getUserIdFromCookie } = require('./lib/user-session');
-const { reportError } = require('./lib/polsia-log');
+const { getSessionSecret } = require('./lib/session');
 const { migrate } = require('./migrate');
+const { PRICE_ESTIMATE_NOTICE } = require('./lib/austin-retailers');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -27,16 +25,17 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-if (!process.env.POLSIA_API_BASE_URL || !process.env.POLSIA_API_TOKEN?.trim()) {
-  console.error('ERROR: POLSIA_API_BASE_URL and POLSIA_API_TOKEN environment variables are required');
+try {
+  getSessionSecret();
+} catch (err) {
+  console.error(`ERROR: ${err.message}`);
   process.exit(1);
 }
-console.log('[startup] POLSIA_API_TOKEN present:', !!process.env.POLSIA_API_TOKEN?.trim());
-console.log(`[startup] email proxy URL: ${process.env.POLSIA_EMAIL_PROXY_URL || (process.env.POLSIA_API_BASE_URL + '/api/proxy/email/send')}`);
 
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.priceEstimateNotice = PRICE_ESTIMATE_NOTICE;
 
 app.get('/health', (_req, res) => res.json({ status: 'healthy' }));
 
@@ -44,7 +43,7 @@ app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // Landing page
 app.get('/', (_req, res) => {
-  res.render('layout', buildLandingContext());
+  res.render('layout');
 });
 
 // Planner routes
@@ -68,23 +67,17 @@ app.use('/api/discovery', discoveryRouter);
 // Price comparison
 app.use('/api/prices', pricesRouter);
 
-// Auth (OTP proxy to Polsia)
+// Auth (email + password, signed session cookie)
 app.use('/auth', authRouter);
 
 // Account profile
 app.use('/profile', profileRouter);
-
-// Account payment checkout
-app.use('/payments', paymentsRouter);
 
 // Onboarding API
 app.use('/api/onboarding', onboardingRouter);
 
 // Pantry API
 app.use('/api/pantry', pantryRouter);
-
-// Client-side log intake (browser → same-origin → platform log proxy)
-app.use('/api/log', logRouter);
 
 // Product pages
 app.use(productPagesRouter);
@@ -99,7 +92,6 @@ app.get('/onboarding', (req, res) => {
 // handler in Express. Per-route catches still win for known failures; this
 // only fires for things that escape them.
 app.use((err, req, res, next) => {
-  reportError(err, req.path);
   console.error(`[unhandled ${req.method} ${req.path}]`, err);
   if (res.headersSent) return next(err);
   res.status(500).json({ error: err.message || 'Internal server error' });

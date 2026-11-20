@@ -1,21 +1,24 @@
 {
-  "name": "express-postgres-templated",
+  "name": "pantry",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "build": "echo 'No build step required'",
-    "migrate": "node migrate.js"
+    "migrate": "node migrate.js",
+    "set-password": "node scripts/set-password.js",
+    "test": "node --test tests/*.js"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "domhandler": "^5.0.3",
     "domutils": "^3.1.0",
     "ejs": "^3.1.10",
     "express": "^4.18.2",
     "htmlparser2": "^10.0.0",
-    "openai": "^4.77.0",
     "nodemailer": "^6.9.0",
+    "openai": "^4.77.0",
     "pg": "^8.11.3"
   }
 }

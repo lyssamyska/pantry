@@ -1,5 +1,6 @@
 // Save imported recipe from URL. Does NOT fetch the URL — see services/recipe-importer.js.
 const { pool } = require('./index');
+const { reconcileDietaryFlags } = require('../services/compliance');
 
 async function saveImportedRecipe(data) {
   // Normalize ingredients: array of strings → array of {name, quantity}
@@ -26,17 +27,9 @@ async function saveImportedRecipe(data) {
   const parsedServings = servingsMatch ? Math.round(Number(servingsMatch[0])) : 4;
   const baseServings = Number.isInteger(parsedServings) && parsedServings > 0 ? parsedServings : 4;
 
-  // Determine dietary flags
-  let dietary_flags = data.dietary_flags || [];
-  if (!dietary_flags.length && data.keywords) {
-    const kw = (data.keywords || '').toLowerCase();
-    if (kw.includes('gluten')) dietary_flags.push('gluten-free');
-    if (kw.includes('dairy') || kw.includes('vegan')) {
-      dietary_flags.push('dairy-free');
-      if (kw.includes('vegan')) dietary_flags.push('vegan');
-      else dietary_flags.push('vegetarian');
-    }
-  }
+  // Gluten-free / sugar-free come only from the compliance check of the
+  // ingredients actually being saved — never from the browser or page tags.
+  const dietary_flags = reconcileDietaryFlags(Array.isArray(data.dietary_flags) ? data.dietary_flags : [], ingredients);
 
   const result = await pool.query(`
     INSERT INTO recipes (name, description, prep_time_minutes, cook_time_minutes, protein_type, dietary_flags, sourcing_standard, ingredients, instructions, tags, source_url, imported_at, base_servings)

@@ -31,7 +31,8 @@ router.get('/compare/:ingredientId', async (req, res) => {
         price: parseFloat(p.price),
         unit: p.unit,
         deal: p.deal,
-        deal_description: p.deal_description
+        deal_description: p.deal_description,
+        price_is_estimate: p.price_is_estimate !== false
       }))
     });
   } catch (err) {

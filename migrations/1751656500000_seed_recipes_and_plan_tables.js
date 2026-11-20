@@ -1,5 +1,5 @@
 // Recipes, meal_plans, and grocery_items tables for the Meal Plan Generator MVP.
-// Also seeds 50 dinner recipes.
+// (RECIPES below is kept for history; seeding happens in 1751657000000_seed_recipes.js.)
 const RECIPES = [
   // Beef (8)
   { name: 'Herb-Crusted Beef Tenderloin', description: 'Seared tenderloin with rosemary-thyme crust, served with roasted shallot jus', prep_time_minutes: 25, cook_time_minutes: 20, protein_type: 'beef', dietary_flags: ['gluten-free'], sourcing_standard: true, ingredients: [{name: 'beef tenderloin', quantity: '1.5 lbs', sourcing_hint: 'grass-fed'}, {name: 'fresh rosemary', quantity: '2 tbsp'}, {name: 'fresh thyme', quantity: '1 tbsp'}, {name: 'garlic', quantity: '4 cloves'}, {name: 'olive oil', quantity: '2 tbsp'}, {name: 'butter', quantity: '2 tbsp'}, {name: 'shallots', quantity: '3'}, {name: 'beef broth', quantity: '0.5 cup'}], instructions: ['Preheat oven to 425°F', 'Season beef with salt, pepper, herbs, minced garlic', 'Sear in hot skillet with olive oil 2 min per side', 'Roast 12-15 min until internal temp 130°F', 'Rest 5 min, slice, serve with pan jus'], tags: ['dinner', 'elegant'] },
@@ -102,13 +102,8 @@ module.exports = {
     `);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_grocery_items_plan_id ON grocery_items (plan_id)`);
 
-    // Seed 50 recipes
-    const insert = `INSERT INTO recipes (name, description, prep_time_minutes, cook_time_minutes, protein_type, dietary_flags, sourcing_standard, ingredients, instructions, tags)
-                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                    ON CONFLICT DO NOTHING`;
-    for (const r of RECIPES) {
-      await client.query(insert, [r.name, r.description, r.prep_time_minutes, r.cook_time_minutes, r.protein_type, r.dietary_flags, r.sourcing_standard, r.ingredients, r.instructions, r.tags]);
-    }
-    console.log(`Seeded ${RECIPES.length} recipes`);
+    // Recipes are seeded by 1751657000000_seed_recipes.js. This migration used
+    // to seed the same list too, but passed JS arrays straight into JSONB
+    // columns, which fails on a fresh database (and would double-seed if fixed).
   }
 };
