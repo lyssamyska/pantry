@@ -82,3 +82,22 @@ test('env files with secrets are git-ignored and neon.ts is committed config', (
   assert.match(ignore, /^\.neon$/m);
   assert.ok(fs.existsSync(path.join(__dirname, '..', 'neon.ts')));
 });
+
+test('a real DATABASE_URL keeps .env.local from supplying a different migration URL', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'pantry-env-'));
+  try {
+    fs.writeFileSync(path.join(root, '.env.local'), `DATABASE_URL=${NEON_POOLED}\nDATABASE_URL_UNPOOLED=${NEON_DIRECT}\nNEON_BRANCH=production\n`);
+    const env = { DATABASE_URL: 'postgres://postgres@localhost:5433/pantry' };
+    loadEnvFiles({ root, env });
+    assert.equal(env.DATABASE_URL, 'postgres://postgres@localhost:5433/pantry');
+    assert.equal(env.DATABASE_URL_UNPOOLED, undefined);
+    assert.equal(migrationDatabaseUrl(env), 'postgres://postgres@localhost:5433/pantry');
+    assert.equal(env.NEON_BRANCH, 'production');
+
+    const fromFile = {};
+    loadEnvFiles({ root, env: fromFile });
+    assert.equal(migrationDatabaseUrl(fromFile), NEON_DIRECT);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
